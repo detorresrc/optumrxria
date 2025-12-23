@@ -166,9 +166,43 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
   };
 
   // Navigate to a specific step (form data is preserved automatically via react-hook-form)
-  const navigateToStep = useCallback((targetStep: number) => {
-    setCurrentStep(targetStep);
-  }, []);
+  // Validates current step before allowing navigation forward
+  const navigateToStep = useCallback(async (targetStep: number) => {
+    // Allow navigating backward without validation
+    if (targetStep < currentStep) {
+      setCurrentStep(targetStep);
+      return;
+    }
+
+    // For forward navigation, validate current step first
+    let isValid = false;
+
+    if (currentStep === 0) {
+      isValid = await trigger(['clientReferenceId', 'clientName', 'source', 'addresses']);
+    } else if (currentStep === 1) {
+      isValid = await trigger([
+        'effectiveDate',
+        'contractSource',
+        'invoiceBreakout',
+        'claimInvoiceFrequency',
+        'feeInvoiceFrequency',
+        'invoiceAggregationLevel',
+        'invoiceType',
+        'deliveryOption',
+        'supportDocumentVersion',
+      ]);
+    } else if (currentStep === 2) {
+      isValid = await trigger('contacts');
+    } else if (currentStep === 3) {
+      isValid = await trigger('operationalUnits');
+    } else {
+      isValid = await trigger();
+    }
+
+    if (isValid) {
+      setCurrentStep(targetStep);
+    }
+  }, [currentStep, trigger]);
 
   // Handle "Go Back" button click - navigate to previous step
   const handleGoBack = useCallback(() => {
