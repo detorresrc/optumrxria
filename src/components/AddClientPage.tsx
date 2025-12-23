@@ -22,6 +22,7 @@ import { ClientDetailsStep } from './ClientDetailsStep';
 import { ContractDetailsStep } from './ContractDetailsStep';
 import { ContactsAccessStep } from './ContactsAccessStep';
 import { OperationalUnitsStep } from './OperationalUnitsStep';
+import { ConfirmationStep } from './ConfirmationStep';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import {
@@ -152,6 +153,16 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
     if (onSaveDraft) {
       onSaveDraft(formData);
     }
+  };
+
+  // Handle form confirmation/submission on the final step
+  const handleConfirm = (data: AddClientCombinedFormData) => {
+    // Clear draft from storage on successful submission
+    clearDraftFromStorage();
+    // Log the submitted data (in a real app, this would send to an API)
+    console.log('Form submitted:', data);
+    // Navigate to clients list after successful submission
+    navigateToClientsList();
   };
 
   // Navigate to a specific step (form data is preserved automatically via react-hook-form)
@@ -331,46 +342,115 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
               gap: 2,
             }}
           >
-            <Button
-              variant="contained"
-              onClick={handleSaveDraft}
-              sx={{
-                backgroundColor: '#002677',
-                color: '#FFFFFF',
-                borderRadius: '46px',
-                padding: '10px 24px',
-                fontSize: '16px',
-                fontWeight: 700,
-                textTransform: 'none',
-                boxShadow: 'none',
-                '&:hover': {
-                  backgroundColor: '#001a5c',
-                  boxShadow: 'none',
-                },
-              }}
-            >
-              Save as Draft
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={handleCancel}
-              sx={{
-                backgroundColor: '#FFFFFF',
-                color: '#4B4D4F',
-                borderColor: '#4B4D4F',
-                borderRadius: '46px',
-                padding: '10px 24px',
-                fontSize: '16px',
-                fontWeight: 700,
-                textTransform: 'none',
-                '&:hover': {
-                  backgroundColor: '#F5F5F5',
-                  borderColor: '#4B4D4F',
-                },
-              }}
-            >
-              Cancel
-            </Button>
+            {currentStep === 4 ? (
+              // Confirmation step buttons - Requirements 7.1, 7.2, 7.3
+              <>
+                <Button
+                  variant="contained"
+                  onClick={() => handleSubmit(handleConfirm)()}
+                  sx={{
+                    backgroundColor: '#002677',
+                    color: '#FFFFFF',
+                    borderRadius: '46px',
+                    padding: '10px 24px',
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    textTransform: 'none',
+                    boxShadow: 'none',
+                    '&:hover': {
+                      backgroundColor: '#001a5c',
+                      boxShadow: 'none',
+                    },
+                  }}
+                >
+                  Confirm
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={handleSaveDraft}
+                  sx={{
+                    backgroundColor: '#FFFFFF',
+                    color: '#002677',
+                    borderColor: '#002677',
+                    borderRadius: '46px',
+                    padding: '10px 24px',
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: '#F5F5F5',
+                      borderColor: '#002677',
+                    },
+                  }}
+                >
+                  Save as Draft
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={handleCancel}
+                  sx={{
+                    backgroundColor: '#FFFFFF',
+                    color: '#4B4D4F',
+                    borderColor: '#4B4D4F',
+                    borderRadius: '46px',
+                    padding: '10px 24px',
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: '#F5F5F5',
+                      borderColor: '#4B4D4F',
+                    },
+                  }}
+                >
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              // Default buttons for steps 0-3
+              <>
+                <Button
+                  variant="contained"
+                  onClick={handleSaveDraft}
+                  sx={{
+                    backgroundColor: '#002677',
+                    color: '#FFFFFF',
+                    borderRadius: '46px',
+                    padding: '10px 24px',
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    textTransform: 'none',
+                    boxShadow: 'none',
+                    '&:hover': {
+                      backgroundColor: '#001a5c',
+                      boxShadow: 'none',
+                    },
+                  }}
+                >
+                  Save as Draft
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={handleCancel}
+                  sx={{
+                    backgroundColor: '#FFFFFF',
+                    color: '#4B4D4F',
+                    borderColor: '#4B4D4F',
+                    borderRadius: '46px',
+                    padding: '10px 24px',
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: '#F5F5F5',
+                      borderColor: '#4B4D4F',
+                    },
+                  }}
+                >
+                  Cancel
+                </Button>
+              </>
+            )}
           </Box>
         </Box>
 
@@ -412,10 +492,19 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
               errors={errors}
             />
           )}
+          {currentStep === 4 && (
+            <ConfirmationStep
+              formData={getValues()}
+              onEditStep={navigateToStep}
+              onConfirm={() => handleSubmit(handleConfirm)()}
+              onSaveDraft={handleSaveDraft}
+              onGoBack={handleGoBack}
+            />
+          )}
 
           {/* Step Navigation Buttons */}
-          {/* Show buttons on all steps except: Go Back hidden on step 0, Next hidden on last step */}
-          {(currentStep > 0 || currentStep < STEP_LABELS.length - 1) && (
+          {/* Show buttons on steps 0-3 only. Confirmation step (4) has buttons in title bar */}
+          {currentStep < 4 && (currentStep > 0 || currentStep < STEP_LABELS.length - 1) && (
             <Box
               sx={{
                 display: 'flex',
@@ -472,6 +561,40 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
                   Next
                 </Button>
               )}
+            </Box>
+          )}
+
+          {/* Confirmation Step Navigation - Go Back button only */}
+          {currentStep === 4 && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-start',
+                alignItems: 'center',
+                mt: 3,
+              }}
+            >
+              <Button
+                variant="outlined"
+                startIcon={<ArrowBackIcon />}
+                onClick={handleGoBack}
+                sx={{
+                  backgroundColor: '#FFFFFF',
+                  color: '#002677',
+                  borderColor: '#002677',
+                  borderRadius: '46px',
+                  padding: '10px 24px',
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  '&:hover': {
+                    backgroundColor: '#F5F5F5',
+                    borderColor: '#002677',
+                  },
+                }}
+              >
+                Go Back
+              </Button>
             </Box>
           )}
         </form>

@@ -1,0 +1,53 @@
+Confirmation Step - Add Client Flow
+
+## Page Structure
+- Title: "Add Client" with icon
+- Stepper showing 5 steps (all complete except step 5 "Confirmation" which is current/in progress)
+- Action buttons: "Confirm" (primary), "Save as Draft" (secondary), "Go Back" (tertiary)
+
+## Info Banner
+- Type: Info notification
+- Title: "Review and Confirm Details"
+- Body: "You cannot edit information on this screen. To make changes, click the edit icon next to the section you want to update."
+- Background: #E5F8FB (Feedback/Info Tint)
+- Border: 1px #002677 (Optum/Secondary/Dark Blue)
+- Border radius: 12px
+
+## Accordion Sections (Collapsible Review Panels)
+
+### 1. Client Details Accordion
+- Header: "Client Details" with edit icon
+- Subtitle: "Please review all fields you have filled out and make sure they are correct before clicking on confirm."
+- Expandable with chevron
+- Contains read-only display of:
+  - Client Reference ID*, Client ID (disabled), Client Name*
+  - Client Status (dropdown), Source* (dropdown)
+  - Multiple Address sections (Address Type*, Address 1*, Address 2*, City*, State*, Zip*)
+  - "Add another address" button
+
+### 2. Contract Details Accordion
+- Header: "Contract Details" with edit icon
+- Subtitle: "Please review all fields you have filled out and make sure they are correct before clicking on confirm."
+- Collapsed by default
+
+### 3. Contacts & Access Accordion
+- Header: "Contacts & Access" with edit icon
+- Subtitle: "Complete the fields below."
+- Collapsed by default
+
+### 4. Operational Units Accordions (Multiple)
+- Header: "Operational Units - Operational Unit Name" with edit icon
+- Subtitle: "Please review all fields you have filled out and make sure they are correct before clicking on confirm."
+- Multiple instances shown (3 in design)
+- Collapsed by default
+
+## Styling
+- Accordion container: white background, 1px #CBCCCD border, 12px border radius
+- Section title: Desktop/Heading/XXS (20px, bold, #000000)
+- Section subtitle: Desktop/Body/L/Regular (16px, #4B4D4F)
+- Edit icon: 24x24px, positioned next to title
+- Chevron: 12x7.84px for expand/collapse
+
+## Stepper States
+- Steps 1-4: Complete (checkmark icon)
+- Step 5: Current/In Progress (numbered circle with shadow effect)
