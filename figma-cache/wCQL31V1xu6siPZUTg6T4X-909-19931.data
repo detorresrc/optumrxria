@@ -1,0 +1,60 @@
+# Contacts & Access Step - Figma Design Data
+# Node: 909-19931
+# Cached: 2024-12-23
+
+## Overview
+This is Step 3 "Contacts & Access" in the Add Client multi-step wizard.
+The stepper shows: Client Details (Complete) → Contract Details (Complete) → Contacts & Access (Current/In Progress) → Operational Units (Incomplete) → Confirmation (Incomplete)
+
+## Form Fields Identified from Design:
+
+### Contacts & Access Section (Main Accordion)
+- Section Title: "Contacts & Access"
+- Section Subtitle: "Complete the fields below."
+- Expandable accordion with chevron icon
+
+### Contact Entry Fields (Repeatable - can add multiple contacts)
+Each contact entry contains:
+- Contact Type* (dropdown - required) - placeholder: "Select contact type"
+- First Name* (text input - required) - placeholder: "Enter first name"
+- Last Name* (text input - required) - placeholder: "Enter last name"
+- Email* (text input - required) - placeholder: "Enter email"
+- Status (dropdown - optional) - placeholder: "Select status"
+- Send email Notification (radio button with "Yes" option shown selected)
+
+### Multiple Contacts Support
+- Design shows two contact entries (Contact A and Contact B)
+- Contact B has a delete button (trash icon) and separator line above it
+- "Add another contact" button at bottom with plus icon
+
+## Layout Structure:
+- Main accordion with "Contacts & Access" header
+- Subtitle: "Complete the fields below."
+- Three-column grid layout for form fields (Contact Type, First Name, Last Name in first row)
+- Second row: Email, Status, Send email Notification
+- Separator line between contact entries
+- Delete button for additional contacts (not first contact)
+- Ghost button "Add another contact" at bottom
+
+## Styling Notes:
+- Border: 1px solid #CBCCCD
+- Border radius: 12px
+- Padding: 30px 24px
+- Section title: Desktop/Heading/XXS (20px, bold)
+- Field labels: Desktop/Body/L/Bold (16px, bold)
+- Input text: Desktop/Body/L/Regular (16px, regular)
+- Input border: 1px solid #4B4D4F
+- Input border radius: 4px
+- Input height: 40px
+- Gap between rows: 24px
+- Gap between contact entries: 56px
+- Separator line: 1px solid #AAAAAA
+
+## Button Styling:
+- "Add another contact" button: Ghost style with plus icon
+- Text color: #0C55B8 (Interaction Primary/70)
+- Font: Desktop/Body/M/Bold (14px, bold)
+
+## Footer Navigation:
+- "Next" button (Primary): Dark blue (#002677), 46px border radius
+- "Go Back" button (Tertiary): White with #323334 border, 46px border radius

@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "TSX Component Scaffold",
+  "description": "Automatically generates a default React functional component with props interface when a new .tsx file is created",
+  "version": "1",
+  "when": {
+    "type": "fileCreated",
+    "patterns": [
+      "*.tsx"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A new .tsx file was just created. Please populate it with a default React functional component scaffold. Convert the filename to PascalCase for the component name (e.g., home-page.tsx becomes HomePage). Generate the following structure:\n\ninterface {ComponentName}Props {\n  children: React.ReactNode\n}\n\nconst {ComponentName}: React.FC<{ComponentName}Props> = ({children}) => {\n  return (<>{children}</>);\n}\n\nexport default {ComponentName};\n\nReplace {ComponentName} with the PascalCase version of the filename."
+  },
+  "workspaceFolderName": "template",
+  "shortName": "tsx-component-scaffold"
+}

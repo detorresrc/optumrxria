@@ -1,0 +1,16 @@
+Figma Links
+
+Add Client Page:
+https://www.figma.com/design/wCQL31V1xu6siPZUTg6T4X/CORE?node-id=903-16487&t=CBfQhnEkEu01ldmT-4
+
+Contract Details: 
+https://www.figma.com/design/wCQL31V1xu6siPZUTg6T4X/CORE?node-id=909-19197&t=xkPuKzRsVttcDpCo-4
+
+Contacts and Access:
+https://www.figma.com/design/wCQL31V1xu6siPZUTg6T4X/CORE?node-id=909-19931&t=xkPuKzRsVttcDpCo-4
+
+Operational Unit:
+https://www.figma.com/design/wCQL31V1xu6siPZUTg6T4X/CORE?node-id=909-21029&t=xkPuKzRsVttcDpCo-4
+
+Confirmation:
+https://www.figma.com/design/wCQL31V1xu6siPZUTg6T4X/CORE?node-id=909-22131&t=xkPuKzRsVttcDpCo-4
