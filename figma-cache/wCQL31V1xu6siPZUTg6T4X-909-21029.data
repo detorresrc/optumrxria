@@ -1,0 +1,72 @@
+# Figma Cache: Operational Units Step (909-21029)
+
+## Overview
+This is Step 4 in the Add Client wizard - Operational Units step.
+
+## Key Components
+
+### Accordion Structure
+- Title: "Operational Units"
+- Subtitle: "Complete the fields below."
+- Border: 1px solid #CBCCCD
+- Border radius: 12px
+- Padding: 30px 24px
+
+### Form Fields (Row 1)
+1. Operational Unit Name * (text input, required)
+   - Placeholder: "Enter name"
+2. Operational Unit ID * (text input, required)
+   - Placeholder: "Enter name"
+3. Market Segment (dropdown)
+   - Placeholder: "Select market segment"
+
+### Form Fields (Row 2)
+1. Line of Business * (dropdown, required)
+   - Placeholder: "Select line of business"
+2. M&R Plan Type (dropdown)
+   - Placeholder: "Select M&R plan type"
+3. M&R Group/Individual (dropdown)
+   - Placeholder: "Select M&R grouping"
+
+### Form Fields (Row 3)
+1. M&R Classification (dropdown)
+   - Placeholder: "Select M&R classification"
+2. Pass through/Traditional pricing (dropdown)
+   - Placeholder: "Select"
+3. Run-off Period * (text input, required)
+   - Placeholder: "Enter Period"
+
+### Form Fields (Row 4)
+1. Assign Contacts (dropdown)
+   - Placeholder: "Select contacts"
+
+### Address Section
+- Separator line between OU fields and address section
+- Delete button (trash icon) for address entries
+- Fields:
+  - Address Type * (dropdown, required)
+  - Address 1 * (text input, required)
+  - Address 2 * (text input, required)
+  - City * (text input, required)
+  - State * (text input, required)
+  - Zip * (text input, required)
+- "Add another billing address" button with plus icon
+
+### Billing Attributes Section (Nested)
+- Title: "Billing Attributes"
+- Subtitle: "You may override the billing attributes outlined under the contract details section here."
+- Collapsible section within OU
+
+### Multiple OUs
+- Collapsed OU cards show: "Operational Units - Operational Unit Name"
+- Delete button on collapsed cards
+- "Add another operational unit" button at bottom
+
+### Styling
+- Field labels: Desktop/Body/L/Bold (16px, bold)
+- Input text: Desktop/Body/L/Regular (16px, regular)
+- Input border: 1px solid #4B4D4F
+- Input border radius: 4px
+- Input height: 40px
+- Grid gap: 24px
+- Section gap: 56px between OU entries

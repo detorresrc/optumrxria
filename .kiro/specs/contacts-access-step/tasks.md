@@ -6,8 +6,8 @@ This plan implements the Contacts & Access step (Step 3) in the Add Client wizar
 
 ## Tasks
 
-- [ ] 1. Extend schema and form types for contacts
-  - [ ] 1.1 Add contact schema to addClientSchema.ts
+- [x] 1. Extend schema and form types for contacts
+  - [x] 1.1 Add contact schema to addClientSchema.ts
     - Add `contactSchema` with contactType, firstName, lastName, email, status, sendEmailNotification fields
     - Add `contactsAccessSchema` with contacts array
     - Export `Contact` and `ContactsAccessFormData` types
@@ -19,15 +19,15 @@ This plan implements the Contacts & Access step (Step 3) in the Add Client wizar
     - **Property 5: Email format validation**
     - **Validates: Requirements 4.1, 4.2, 4.3, 4.4, 4.5**
 
-- [ ] 2. Create ContactsAccessStep component
-  - [ ] 2.1 Create ContactsAccessStep.tsx component file
+- [x] 2. Create ContactsAccessStep component
+  - [x] 2.1 Create ContactsAccessStep.tsx component file
     - Implement accordion with "Contacts & Access" title and subtitle
     - Use useFieldArray for dynamic contacts management
     - Implement three-column grid layout for fields
     - Add "Add another contact" button with plus icon
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 3.1, 3.2, 5.1, 5.2, 5.3, 5.4, 5.5_
 
-  - [ ] 2.2 Implement contact entry fields
+  - [x] 2.2 Implement contact entry fields
     - Add Contact Type dropdown (required)
     - Add First Name text input (required)
     - Add Last Name text input (required)
@@ -37,7 +37,7 @@ This plan implements the Contacts & Access step (Step 3) in the Add Client wizar
     - Apply correct styling per Figma specs
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
 
-  - [ ] 2.3 Implement multiple contacts functionality
+  - [x] 2.3 Implement multiple contacts functionality
     - Add separator line between contact entries
     - Add delete button for contacts (except first)
     - Implement add contact handler
@@ -50,19 +50,19 @@ This plan implements the Contacts & Access step (Step 3) in the Add Client wizar
     - **Property 3: Removing a contact decreases list length**
     - **Validates: Requirements 3.3, 3.5, 3.6, 3.7**
 
-- [ ] 3. Integrate with Add Client wizard
-  - [ ] 3.1 Update AddClientStepper to include Step 3
+- [x] 3. Integrate with Add Client wizard
+  - [x] 3.1 Update AddClientStepper to include Step 3
     - Add "Contacts & Access" as Step 3 in stepper
     - Update step navigation logic
     - _Requirements: 6.1_
 
-  - [ ] 3.2 Wire ContactsAccessStep into AddClientPage
+  - [x] 3.2 Wire ContactsAccessStep into AddClientPage
     - Import and render ContactsAccessStep for step 3
     - Ensure form context is shared
     - Add contacts field to main form schema
     - _Requirements: 6.4_
 
-  - [ ] 3.3 Implement step navigation
+  - [x] 3.3 Implement step navigation
     - Add "Next" button to navigate to Step 4
     - Add "Go Back" button to navigate to Step 2
     - Validate form before allowing Next navigation
@@ -72,11 +72,11 @@ This plan implements the Contacts & Access step (Step 3) in the Add Client wizar
     - **Property 6: Valid form allows navigation**
     - **Validates: Requirements 4.6**
 
-- [ ] 4. Checkpoint - Ensure all tests pass
+- [x] 4. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. Data persistence and final integration
-  - [ ] 5.1 Ensure contact data persists across step navigation
+- [x] 5. Data persistence and final integration
+  - [x] 5.1 Ensure contact data persists across step navigation
     - Verify data preserved when navigating away from Step 3
     - Verify data restored when returning to Step 3
     - _Requirements: 6.2, 6.3_
@@ -85,7 +85,7 @@ This plan implements the Contacts & Access step (Step 3) in the Add Client wizar
     - **Property 7: Contact data persistence round trip**
     - **Validates: Requirements 6.2, 6.3**
 
-- [ ] 6. Final checkpoint - Ensure all tests pass
+- [x] 6. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

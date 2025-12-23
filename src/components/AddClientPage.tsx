@@ -13,11 +13,15 @@ import {
 } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AddClientStepper } from './AddClientStepper';
 import { ClientDetailsStep } from './ClientDetailsStep';
 import { ContractDetailsStep } from './ContractDetailsStep';
+import { ContactsAccessStep } from './ContactsAccessStep';
+import { OperationalUnitsStep } from './OperationalUnitsStep';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import {
@@ -77,6 +81,7 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
     formState: { errors, isDirty },
     getValues,
     watch,
+    trigger,
   } = useForm<AddClientCombinedFormData>({
     resolver: zodResolver(addClientCombinedSchema),
     defaultValues: initialFormData,
@@ -86,6 +91,16 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'addresses',
+  });
+
+  // Field array for contacts (Step 3: Contacts & Access)
+  const {
+    fields: contactFields,
+    append: appendContact,
+    remove: removeContact,
+  } = useFieldArray({
+    control,
+    name: 'contacts',
   });
 
   // Check if form has unsaved changes
@@ -143,6 +158,34 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
   const navigateToStep = useCallback((targetStep: number) => {
     setCurrentStep(targetStep);
   }, []);
+
+  // Handle "Go Back" button click - navigate to previous step
+  const handleGoBack = useCallback(() => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  }, [currentStep]);
+
+  // Handle "Next" button click - validate current step fields and navigate to next step
+  const handleNext = useCallback(async () => {
+    let isValid = false;
+
+    // Validate fields based on current step
+    if (currentStep === 2) {
+      // Step 3: Contacts & Access - validate contacts array
+      isValid = await trigger('contacts');
+    } else if (currentStep === 3) {
+      // Step 4: Operational Units - validate operationalUnits array
+      isValid = await trigger('operationalUnits');
+    } else {
+      // For other steps, trigger full validation
+      isValid = await trigger();
+    }
+
+    if (isValid && currentStep < STEP_LABELS.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  }, [currentStep, trigger]);
 
   const onSubmit = (data: AddClientCombinedFormData) => {
     // Move to next step on valid form submission
@@ -337,6 +380,76 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
               errors={errors}
               watch={watch}
             />
+          )}
+          {currentStep === 2 && (
+            <ContactsAccessStep
+              control={control}
+              errors={errors}
+              contactFields={contactFields}
+              appendContact={appendContact}
+              removeContact={removeContact}
+            />
+          )}
+          {currentStep === 3 && (
+            <OperationalUnitsStep
+              control={control}
+              errors={errors}
+            />
+          )}
+
+          {/* Step Navigation Buttons */}
+          {(currentStep === 2 || currentStep === 3) && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                mt: 3,
+              }}
+            >
+              <Button
+                variant="outlined"
+                startIcon={<ArrowBackIcon />}
+                onClick={handleGoBack}
+                sx={{
+                  backgroundColor: '#FFFFFF',
+                  color: '#002677',
+                  borderColor: '#002677',
+                  borderRadius: '46px',
+                  padding: '10px 24px',
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  '&:hover': {
+                    backgroundColor: '#F5F5F5',
+                    borderColor: '#002677',
+                  },
+                }}
+              >
+                Go Back
+              </Button>
+              <Button
+                variant="contained"
+                endIcon={<ArrowForwardIcon />}
+                onClick={handleNext}
+                sx={{
+                  backgroundColor: '#002677',
+                  color: '#FFFFFF',
+                  borderRadius: '46px',
+                  padding: '10px 24px',
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  boxShadow: 'none',
+                  '&:hover': {
+                    backgroundColor: '#001a5c',
+                    boxShadow: 'none',
+                  },
+                }}
+              >
+                Next
+              </Button>
+            </Box>
           )}
         </form>
       </Box>

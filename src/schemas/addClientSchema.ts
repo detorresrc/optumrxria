@@ -20,29 +20,67 @@ export const addressSchema = z.object({
   zip: z.string().min(1, 'ZIP code is required').regex(/^\d{5}(-\d{4})?$/, 'Invalid ZIP code format'),
 });
 
-// Contact schema
+// Contact schema for Step 3 (Contacts & Access)
+// Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 4.1, 4.2, 4.3, 4.4, 4.5
 export const contactSchema = z.object({
-  contactType: z.string().min(1, 'Contact type is required'),
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Invalid email address'),
-  status: z.string().min(1, 'Status is required'),
-  sendNotification: z.boolean().default(true),
+  contactType: z.string().min(1, 'Required field'),
+  firstName: z.string().min(1, 'Required field'),
+  lastName: z.string().min(1, 'Required field'),
+  email: z.string().min(1, 'Required field').email('Invalid email format'),
+  status: z.string().optional(),
+  sendEmailNotification: z.enum(['yes', 'no']).default('yes'),
 });
 
+// Contacts & Access Step Schema (Step 3)
+export const contactsAccessSchema = z.object({
+  contacts: z.array(contactSchema).min(1, 'At least one contact is required'),
+});
+
+// Address schema for Operational Units (Step 4) - all fields required with "Required field" message
+// Requirements: 3.2-3.7, 6.6
+export const operationalUnitAddressSchema = z.object({
+  addressType: z.string().min(1, 'Required field'),
+  address1: z.string().min(1, 'Required field'),
+  address2: z.string().min(1, 'Required field'),
+  city: z.string().min(1, 'Required field'),
+  state: z.string().min(1, 'Required field'),
+  zip: z.string().min(1, 'Required field'),
+});
+
+// Billing Attributes Override schema for Operational Units (optional)
+// Requirements: 4.1-4.5 - mirrors contract billing attributes but all optional
+export const billingAttributesOverrideSchema = z.object({
+  invoiceBreakout: z.string().optional(),
+  claimInvoiceFrequency: z.string().optional(),
+  feeInvoiceFrequency: z.string().optional(),
+  invoiceAggregationLevel: z.string().optional(),
+  invoiceType: z.string().optional(),
+  deliveryOption: z.string().optional(),
+  supportDocumentVersion: z.string().optional(),
+}).optional();
+
 // Operational Unit schema
+// Requirements: 2.1-2.10, 6.1-6.6
 export const operationalUnitSchema = z.object({
-  name: z.string().min(1, 'Operational unit name is required'),
-  id: z.string().min(1, 'Operational unit ID is required'),
-  marketSegment: z.string().min(1, 'Market segment is required'),
-  lineOfBusiness: z.string().min(1, 'Line of business is required'),
+  // Required fields (Requirements 2.1, 2.2, 2.4, 2.9, 6.2-6.5)
+  name: z.string().min(1, 'Required field'),
+  id: z.string().min(1, 'Required field'),
+  lineOfBusiness: z.string().min(1, 'Required field'),
+  runOffPeriod: z.string().min(1, 'Required field'),
+
+  // Optional fields (Requirements 2.3, 2.5, 2.6, 2.7, 2.8, 2.10)
+  marketSegment: z.string().optional(),
   mrPlanType: z.string().optional(),
   mrGroupIndividual: z.string().optional(),
   mrClassification: z.string().optional(),
   passThroughTraditional: z.string().optional(),
-  runOffPeriod: z.string().optional(),
-  assignedContacts: z.string().min(1, 'Assigned contacts is required'),
-  addresses: z.array(addressSchema).min(1, 'At least one address is required'),
+  assignContacts: z.string().optional(),
+
+  // Address array (Requirements 3, 6.6)
+  addresses: z.array(operationalUnitAddressSchema).min(1, 'At least one address is required'),
+
+  // Billing attributes override (optional, Requirements 4.1-4.5)
+  billingAttributesOverride: billingAttributesOverrideSchema,
 });
 
 // Main AddClient schema
@@ -75,8 +113,14 @@ export const addClientSchema = z.object({
 // Type inference
 export type AddClientFormData = z.infer<typeof addClientSchema>;
 export type AddressData = z.infer<typeof addressSchema>;
-export type ContactData = z.infer<typeof contactSchema>;
+export type Contact = z.infer<typeof contactSchema>;
+export type ContactsAccessFormData = z.infer<typeof contactsAccessSchema>;
 export type OperationalUnitData = z.infer<typeof operationalUnitSchema>;
+export type OperationalUnitAddressData = z.infer<typeof operationalUnitAddressSchema>;
+export type BillingAttributesOverrideData = z.infer<typeof billingAttributesOverrideSchema>;
+
+// Legacy type alias for backward compatibility
+export type ContactData = Contact;
 
 // Default values
 export const defaultAddressData: AddressData = {
@@ -88,27 +132,46 @@ export const defaultAddressData: AddressData = {
   zip: '',
 };
 
-export const defaultContactData: ContactData = {
+export const defaultContactData: Contact = {
   contactType: '',
   firstName: '',
   lastName: '',
   email: '',
   status: '',
-  sendNotification: true,
+  sendEmailNotification: 'yes',
 };
 
+// Default values for Contacts & Access Step
+export const defaultContactsAccessData: ContactsAccessFormData = {
+  contacts: [defaultContactData],
+};
+
+// Default values for Operational Unit Address (Step 4)
+// Requirements: 5.1
+export const defaultOperationalUnitAddressData: OperationalUnitAddressData = {
+  addressType: '',
+  address1: '',
+  address2: '',
+  city: '',
+  state: '',
+  zip: '',
+};
+
+// Default values for Operational Unit (Step 4)
+// Requirements: 5.1
 export const defaultOperationalUnitData: OperationalUnitData = {
   name: '',
   id: '',
-  marketSegment: '',
   lineOfBusiness: '',
+  runOffPeriod: '',
+  marketSegment: '',
   mrPlanType: '',
   mrGroupIndividual: '',
   mrClassification: '',
   passThroughTraditional: '',
-  runOffPeriod: '',
-  assignedContacts: '',
-  addresses: [defaultAddressData],
+  assignContacts: '',
+  addresses: [defaultOperationalUnitAddressData],
+  billingAttributesOverride: undefined,
 };
 
 export const defaultFormData: AddClientFormData = {
@@ -324,6 +387,12 @@ export const addClientCombinedSchema = z.object({
   // Step 2: Contract Details - Radio Options
   suppressRejectedClaims: z.enum(['yes', 'no']).default('yes'),
   suppressNetZeroClaims: z.enum(['yes', 'no']).default('yes'),
+
+  // Step 3: Contacts & Access
+  contacts: z.array(contactSchema).min(1, 'At least one contact is required'),
+
+  // Step 4: Operational Units (Requirements 5.1, 8.4)
+  operationalUnits: z.array(operationalUnitSchema).min(1, 'At least one operational unit is required'),
 }).superRefine((data, ctx) => {
   // Conditional validation for autopay fields when payment method is ACH
   if (data.paymentMethod === 'ach') {
@@ -413,4 +482,17 @@ export const defaultAddClientCombinedData: AddClientCombinedFormData = {
   // Step 2: Contract Details - Radio Options
   suppressRejectedClaims: 'yes',
   suppressNetZeroClaims: 'yes',
+
+  // Step 3: Contacts & Access
+  contacts: [{
+    contactType: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    status: '',
+    sendEmailNotification: 'yes',
+  }],
+
+  // Step 4: Operational Units
+  operationalUnits: [defaultOperationalUnitData],
 };
