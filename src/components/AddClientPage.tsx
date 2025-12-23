@@ -171,7 +171,23 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
     let isValid = false;
 
     // Validate fields based on current step
-    if (currentStep === 2) {
+    if (currentStep === 0) {
+      // Step 1: Client Details - validate client details and addresses
+      isValid = await trigger(['clientReferenceId', 'clientName', 'source', 'addresses']);
+    } else if (currentStep === 1) {
+      // Step 2: Contract Details - validate contract fields
+      isValid = await trigger([
+        'effectiveDate',
+        'contractSource',
+        'invoiceBreakout',
+        'claimInvoiceFrequency',
+        'feeInvoiceFrequency',
+        'invoiceAggregationLevel',
+        'invoiceType',
+        'deliveryOption',
+        'supportDocumentVersion',
+      ]);
+    } else if (currentStep === 2) {
       // Step 3: Contacts & Access - validate contacts array
       isValid = await trigger('contacts');
     } else if (currentStep === 3) {
@@ -398,57 +414,64 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
           )}
 
           {/* Step Navigation Buttons */}
-          {(currentStep === 2 || currentStep === 3) && (
+          {/* Show buttons on all steps except: Go Back hidden on step 0, Next hidden on last step */}
+          {(currentStep > 0 || currentStep < STEP_LABELS.length - 1) && (
             <Box
               sx={{
                 display: 'flex',
-                justifyContent: 'space-between',
+                justifyContent: currentStep === 0 ? 'flex-end' : 'space-between',
                 alignItems: 'center',
                 mt: 3,
               }}
             >
-              <Button
-                variant="outlined"
-                startIcon={<ArrowBackIcon />}
-                onClick={handleGoBack}
-                sx={{
-                  backgroundColor: '#FFFFFF',
-                  color: '#002677',
-                  borderColor: '#002677',
-                  borderRadius: '46px',
-                  padding: '10px 24px',
-                  fontSize: '16px',
-                  fontWeight: 700,
-                  textTransform: 'none',
-                  '&:hover': {
-                    backgroundColor: '#F5F5F5',
+              {/* Go Back button - hidden on Client Details (step 0) */}
+              {currentStep > 0 && (
+                <Button
+                  variant="outlined"
+                  startIcon={<ArrowBackIcon />}
+                  onClick={handleGoBack}
+                  sx={{
+                    backgroundColor: '#FFFFFF',
+                    color: '#002677',
                     borderColor: '#002677',
-                  },
-                }}
-              >
-                Go Back
-              </Button>
-              <Button
-                variant="contained"
-                endIcon={<ArrowForwardIcon />}
-                onClick={handleNext}
-                sx={{
-                  backgroundColor: '#002677',
-                  color: '#FFFFFF',
-                  borderRadius: '46px',
-                  padding: '10px 24px',
-                  fontSize: '16px',
-                  fontWeight: 700,
-                  textTransform: 'none',
-                  boxShadow: 'none',
-                  '&:hover': {
-                    backgroundColor: '#001a5c',
+                    borderRadius: '46px',
+                    padding: '10px 24px',
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: '#F5F5F5',
+                      borderColor: '#002677',
+                    },
+                  }}
+                >
+                  Go Back
+                </Button>
+              )}
+              {/* Next button - hidden on Confirmation (last step) */}
+              {currentStep < STEP_LABELS.length - 1 && (
+                <Button
+                  variant="contained"
+                  endIcon={<ArrowForwardIcon />}
+                  onClick={handleNext}
+                  sx={{
+                    backgroundColor: '#002677',
+                    color: '#FFFFFF',
+                    borderRadius: '46px',
+                    padding: '10px 24px',
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    textTransform: 'none',
                     boxShadow: 'none',
-                  },
-                }}
-              >
-                Next
-              </Button>
+                    '&:hover': {
+                      backgroundColor: '#001a5c',
+                      boxShadow: 'none',
+                    },
+                  }}
+                >
+                  Next
+                </Button>
+              )}
             </Box>
           )}
         </form>
