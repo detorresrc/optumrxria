@@ -1,11 +1,10 @@
-import { Box, Typography, InputAdornment } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { Controller } from 'react-hook-form';
 import type { Control, FieldError, FieldValues, Path } from 'react-hook-form';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import dayjs, { Dayjs } from 'dayjs';
 
 interface FormDateFieldProps<T extends FieldValues> {
@@ -76,21 +75,21 @@ export const FormDateField = <T extends FieldValues>({
                   openPickerIcon: CalendarTodayIcon,
                 }}
                 slotProps={{
+                  field: {
+                    clearable: false,
+                  },
                   textField: {
                     fullWidth: fullWidth,
                     size: 'small',
                     placeholder: placeholder,
                     error: !!error,
-                    InputProps: {
-                      endAdornment: (
-                        <>
-                          {error && (
-                            <InputAdornment position="end">
-                              <ErrorOutlineIcon sx={{ color: '#C40000', fontSize: '20px' }} />
-                            </InputAdornment>
-                          )}
-                        </>
-                      ),
+                    helperText: error?.message,
+                    FormHelperTextProps: {
+                      sx: {
+                        color: '#C40000',
+                        fontSize: '12px',
+                        marginLeft: 0,
+                      },
                     },
                     sx: {
                       '& .MuiOutlinedInput-root': {
@@ -111,6 +110,9 @@ export const FormDateField = <T extends FieldValues>({
                         padding: '10px 12px',
                         fontSize: '14px',
                       },
+                      '& .MuiInputAdornment-root': {
+                        marginLeft: 0,
+                      },
                     },
                   },
                   openPickerButton: {
@@ -127,20 +129,6 @@ export const FormDateField = <T extends FieldValues>({
           }}
         />
       </LocalizationProvider>
-      {error && (
-        <Typography
-          sx={{
-            color: '#C40000',
-            fontSize: '12px',
-            mt: 0.5,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 0.5,
-          }}
-        >
-          {error.message}
-        </Typography>
-      )}
     </Box>
   );
 };
