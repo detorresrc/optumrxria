@@ -8,6 +8,6 @@ General Rules:
 
 
 Figma Rules:
-- Please cache the figma response and save to /figma-cache/${fileKey}-${nodeId}.data to avoid unnecessary requests to the Figma API.
+- Please cache the Figma response and save it to /figma-cache/${fileKey}-${nodeId}.data to avoid unnecessary requests to the Figma API. Save the data as is, like this data figma-cache/wCQL31V1xu6siPZUTg6T4X-903-16487.data.
 - Use the Figma MCP(if cache is not available) to fetch and reference design specifications before implementing.
 - Do not create custom designs. If the Figma MCP fails or is unavailable, inform the user and request clarification rather than proceeding with alternative designs.

@@ -1,7 +1,7 @@
-import { AddClientPage } from './components/AddClientPage'
+import ClientListPage from './components/ClientListPage'
 
 function App() {
-  return <AddClientPage />
+  return <ClientListPage successMessage='Client has been successfully saved.' />
 }
 
 export default App
