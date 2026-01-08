@@ -198,7 +198,6 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
     } else {
       isValid = await trigger();
     }
-    isValid = true;
     if (isValid) {
       setCurrentStep(targetStep);
     }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
 
 export type StepStatus = 'completed' | 'current' | 'incomplete';
 
@@ -49,25 +50,85 @@ const StepIndicator: React.FC<{
   const isCurrent = status === 'current';
   const isCompleted = status === 'completed';
 
+  // Completed: dark grey bg with white check icon
+  if (isCompleted) {
+    return (
+      <Box
+        sx={{
+          width: 28,
+          height: 28,
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#4B4D4F',
+        }}
+      >
+        <CheckIcon sx={{ fontSize: 16, color: '#FFFFFF', strokeWidth: 1 }} />
+      </Box>
+    );
+  }
+
+  // Current: dark blue bg with number, surrounded by grey ring
+  if (isCurrent) {
+    return (
+      <Box
+        sx={{
+          width: 32,
+          height: 32,
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#FFFFFF',
+          border: '2px solid #4B4D4F',
+        }}
+      >
+        <Box
+          sx={{
+            width: 24,
+            height: 24,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#002677',
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: '12px',
+              fontWeight: 700,
+              color: '#FFFFFF',
+              lineHeight: 1,
+            }}
+          >
+            {stepNumber}
+          </Typography>
+        </Box>
+      </Box>
+    );
+  }
+
+  // Incomplete: white bg with grey border and number
   return (
     <Box
       sx={{
-        width: 32,
-        height: 32,
-        borderRadius: '100px',
+        width: 28,
+        height: 28,
+        borderRadius: '50%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: isCurrent || isCompleted ? '#002677' : '#FFFFFF',
-        border: isCurrent || isCompleted ? 'none' : '1px solid #6D6E70',
-        boxShadow: isCurrent ? '0px 2px 4px rgba(0, 38, 119, 0.25)' : 'none',
+        backgroundColor: '#FFFFFF',
+        border: '2px solid #6D6E70',
       }}
     >
       <Typography
         sx={{
           fontSize: '14px',
-          fontWeight: 500,
-          color: isCurrent || isCompleted ? '#FFFFFF' : '#6D6E70',
+          fontWeight: 700,
+          color: '#6D6E70',
           lineHeight: 1,
         }}
       >
@@ -76,17 +137,6 @@ const StepIndicator: React.FC<{
     </Box>
   );
 };
-
-const SpacerLine: React.FC = () => (
-  <Box
-    sx={{
-      flex: 1,
-      height: '1px',
-      backgroundColor: '#CBCCCD',
-      mx: 1,
-    }}
-  />
-);
 
 export const AddClientStepper: React.FC<AddClientStepperProps> = ({
   currentStep,
@@ -110,24 +160,23 @@ export const AddClientStepper: React.FC<AddClientStepperProps> = ({
     <Box
       sx={{
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         width: '100%',
         py: 2,
       }}
     >
       {stepConfigs.map((step, index) => (
         <React.Fragment key={step.label}>
+          {/* Step item container */}
           <Box
             onClick={() => onStepClick?.(index)}
             sx={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              minWidth: 120,
+              minWidth: 130,
               cursor: onStepClick ? 'pointer' : 'default',
-              '&:hover': onStepClick ? {
-                opacity: 0.8,
-              } : {},
+              '&:hover': onStepClick ? { opacity: 0.8 } : {},
             }}
           >
             {/* Status label */}
@@ -151,7 +200,7 @@ export const AddClientStepper: React.FC<AddClientStepperProps> = ({
               sx={{
                 fontSize: '14px',
                 fontWeight: step.status === 'current' ? 700 : 400,
-                color: step.status === 'current' ? '#002677' : '#6D6E70',
+                color: step.status === 'current' ? '#002677' : '#323334',
                 mt: 0.5,
                 textAlign: 'center',
                 lineHeight: 1.4,
@@ -161,8 +210,18 @@ export const AddClientStepper: React.FC<AddClientStepperProps> = ({
             </Typography>
           </Box>
 
-          {/* Spacer line between steps */}
-          {index < stepConfigs.length - 1 && <SpacerLine />}
+          {/* Connector line between steps */}
+          {index < stepConfigs.length - 1 && (
+            <Box
+              sx={{
+                flex: 1,
+                height: '2px',
+                backgroundColor: '#323334',
+                alignSelf: 'center',
+                mt: -2, // Offset to align with circle center
+              }}
+            />
+          )}
         </React.Fragment>
       ))}
     </Box>

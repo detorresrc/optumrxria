@@ -1,25 +1,11 @@
 import React from 'react';
-import { Box, Typography, Link } from '@mui/material';
-
-interface FooterLink {
-  label: string;
-  href: string;
-}
+import { Box, Typography } from '@mui/material';
 
 interface FooterProps {
-  links?: FooterLink[];
   copyrightYear?: number;
 }
 
-const defaultLinks: FooterLink[] = [
-  { label: 'Privacy Policy', href: '/privacy' },
-  { label: 'Terms of Use', href: '/terms' },
-  { label: 'Accessibility', href: '/accessibility' },
-  { label: 'Contact Us', href: '/contact' },
-];
-
 export const Footer: React.FC<FooterProps> = ({
-  links = defaultLinks,
   copyrightYear = new Date().getFullYear(),
 }) => {
   return (
@@ -35,7 +21,7 @@ export const Footer: React.FC<FooterProps> = ({
       <Box
         sx={{
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
           alignItems: 'center',
           px: '84px',
           py: 2,
@@ -53,46 +39,6 @@ export const Footer: React.FC<FooterProps> = ({
         >
           © {copyrightYear} Optum, Inc. All rights reserved.
         </Typography>
-
-        {/* Links */}
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 3,
-          }}
-        >
-          {links.map((link, index) => (
-            <React.Fragment key={link.label}>
-              <Link
-                href={link.href}
-                underline="hover"
-                sx={{
-                  fontFamily: '"Enterprise Sans VF", sans-serif',
-                  fontWeight: 400,
-                  fontSize: 12,
-                  lineHeight: 1.2,
-                  color: '#0C55B8',
-                  cursor: 'pointer',
-                  '&:hover': {
-                    textDecoration: 'underline',
-                  },
-                }}
-              >
-                {link.label}
-              </Link>
-              {index < links.length - 1 && (
-                <Box
-                  sx={{
-                    width: '1px',
-                    height: 12,
-                    backgroundColor: '#CBCCCD',
-                  }}
-                />
-              )}
-            </React.Fragment>
-          ))}
-        </Box>
       </Box>
     </Box>
   );
