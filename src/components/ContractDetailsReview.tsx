@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Grid, Typography, Divider } from '@mui/material';
 import { ReadOnlyField } from './ReadOnlyField';
+import { ReadOnlySelectField } from './ReadOnlySelectField';
 import type { AddClientCombinedFormData } from '../schemas/addClientSchema';
 
 interface ContractDetailsReviewProps {
@@ -88,81 +89,95 @@ export const ContractDetailsReview: React.FC<ContractDetailsReviewProps> = ({
 
   return (
     <Box>
-      {/* Contract Information Fields */}
+      {/* Contract Information Fields - Row 1 */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Client Contract ID"
             value={formData.clientContractId}
+            placeholder="Enter client contract ID"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Effective Date"
             value={formData.effectiveDate}
+            placeholder="MM/DD/YYYY"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Termination Date"
             value={formData.terminationDate}
+            placeholder="MM/DD/YYYY"
           />
         </Grid>
       </Grid>
 
+      {/* Contract Information Fields - Row 2 */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Contract Term"
             value={formData.contractTerm}
+            placeholder="Enter contract term"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Client Membership"
             value={formData.clientMembership}
+            placeholder="Enter client membership"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Client DOA Signor"
             value={formData.clientDoaSignor}
+            placeholder="Enter client DOA signor"
           />
         </Grid>
       </Grid>
 
+      {/* Contract Information Fields - Row 3 */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Contracting Legal Entity for OptumRx"
             value={formData.contractingLegalEntityOptumRx}
+            placeholder="Enter legal entity"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Contracting Legal Entity for Client"
             value={formData.contractingLegalEntityClient}
+            placeholder="Enter legal entity"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Assigned to"
             value={getLabel(formData.assignedTo, ASSIGNED_TO_LABELS)}
+            placeholder="Select assignee"
           />
         </Grid>
       </Grid>
 
+      {/* Contract Information Fields - Row 4 */}
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Run-Off Effective Date"
             value={formData.runOffEffectiveDate}
+            placeholder="MM/DD/YYYY"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Source"
             value={getLabel(formData.contractSource, SOURCE_LABELS)}
+            placeholder="Select source"
           />
         </Grid>
       </Grid>
@@ -180,95 +195,113 @@ export const ContractDetailsReview: React.FC<ContractDetailsReviewProps> = ({
         Billing Attributes
       </Typography>
 
+      {/* Billing Attributes - Row 1 */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Invoice Breakout"
             value={getLabel(formData.invoiceBreakout, INVOICE_BREAKOUT_LABELS)}
+            placeholder="Select invoice breakout"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Claim Invoice Frequency"
             value={getLabel(formData.claimInvoiceFrequency, INVOICE_FREQUENCY_LABELS)}
+            placeholder="Select frequency"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Fee Invoice Frequency"
             value={getLabel(formData.feeInvoiceFrequency, INVOICE_FREQUENCY_LABELS)}
+            placeholder="Select frequency"
           />
         </Grid>
       </Grid>
 
+      {/* Billing Attributes - Row 2 */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Invoice Aggregation Level"
             value={getLabel(formData.invoiceAggregationLevel, INVOICE_AGGREGATION_LABELS)}
+            placeholder="Select aggregation level"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Invoice Type"
             value={getLabel(formData.invoiceType, INVOICE_TYPE_LABELS)}
+            placeholder="Select invoice type"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Invoicing Claim Quantity Counts"
             value={getLabel(formData.invoicingClaimQuantityCounts, CLAIM_QUANTITY_LABELS)}
+            placeholder="Select quantity counts"
           />
         </Grid>
       </Grid>
 
+      {/* Billing Attributes - Row 3 */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Delivery Option"
             value={getLabel(formData.deliveryOption, DELIVERY_LABELS)}
+            placeholder="Select delivery option"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Support Document Version"
             value={getLabel(formData.supportDocumentVersion, SUPPORT_DOC_VERSION_LABELS)}
+            placeholder="Select version"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Claim Invoice Payment Term"
             value={formData.claimInvoicePaymentTerm}
+            placeholder="Enter payment term"
           />
         </Grid>
       </Grid>
 
+      {/* Billing Attributes - Row 4 */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Fee Invoice Payment Term"
             value={formData.feeInvoicePaymentTerm}
+            placeholder="Enter payment term"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Payment Method"
             value={getLabel(formData.paymentMethod, PAYMENT_METHOD_LABELS)}
+            placeholder="Select payment method"
           />
         </Grid>
       </Grid>
 
+      {/* Billing Attributes - Row 5 */}
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 6 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Suppress Rejected Claims?"
             value={getLabel(formData.suppressRejectedClaims, YES_NO_LABELS)}
+            placeholder="Select option"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Suppress Net-zero claims?"
             value={getLabel(formData.suppressNetZeroClaims, YES_NO_LABELS)}
+            placeholder="Select option"
           />
         </Grid>
       </Grid>
@@ -290,27 +323,31 @@ export const ContractDetailsReview: React.FC<ContractDetailsReviewProps> = ({
 
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 3 }}>
-              <ReadOnlyField
+              <ReadOnlySelectField
                 label="Bank Account Type"
                 value={getLabel(formData.bankAccountType, BANK_ACCOUNT_TYPE_LABELS)}
+                placeholder="Select account type"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 3 }}>
               <ReadOnlyField
                 label="Routing Number"
                 value={formData.routingNumber}
+                placeholder="Enter routing number"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 3 }}>
               <ReadOnlyField
                 label="Account Number"
                 value={formData.accountNumber}
+                placeholder="Enter account number"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 3 }}>
               <ReadOnlyField
                 label="Account Holder Name"
                 value={formData.accountHolderName}
+                placeholder="Enter account holder name"
               />
             </Grid>
           </Grid>

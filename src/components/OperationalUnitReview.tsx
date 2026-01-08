@@ -1,6 +1,9 @@
 import React from 'react';
-import { Box, Grid, Typography, Divider } from '@mui/material';
+import { Box, Grid, Typography, Divider, IconButton, Link } from '@mui/material';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import AddIcon from '@mui/icons-material/Add';
 import { ReadOnlyField } from './ReadOnlyField';
+import { ReadOnlySelectField } from './ReadOnlySelectField';
 import type { OperationalUnitData } from '../schemas/addClientSchema';
 
 interface OperationalUnitReviewProps {
@@ -121,18 +124,21 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
           <ReadOnlyField
             label="Operational Unit Name"
             value={operationalUnit.name}
+            placeholder="Enter operational unit name"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Operational Unit ID"
             value={operationalUnit.id}
+            placeholder="Enter operational unit ID"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Market Segment"
             value={getLabel(operationalUnit.marketSegment, MARKET_SEGMENT_LABELS)}
+            placeholder="Select market segment"
           />
         </Grid>
       </Grid>
@@ -140,21 +146,24 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
       {/* Basic Fields - Row 2 */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Line of Business"
             value={getLabel(operationalUnit.lineOfBusiness, LINE_OF_BUSINESS_LABELS)}
+            placeholder="Select line of business"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="M&R Plan Type"
             value={getLabel(operationalUnit.mrPlanType, MR_PLAN_TYPE_LABELS)}
+            placeholder="Select plan type"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="M&R Group/Individual"
             value={getLabel(operationalUnit.mrGroupIndividual, MR_GROUP_INDIVIDUAL_LABELS)}
+            placeholder="Select group/individual"
           />
         </Grid>
       </Grid>
@@ -162,21 +171,24 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
       {/* Basic Fields - Row 3 */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="M&R Classification"
             value={getLabel(operationalUnit.mrClassification, MR_CLASSIFICATION_LABELS)}
+            placeholder="Select classification"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Pass through/Traditional pricing"
             value={getLabel(operationalUnit.passThroughTraditional, PRICING_LABELS)}
+            placeholder="Select pricing type"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Run-off Period"
             value={operationalUnit.runOffPeriod}
+            placeholder="Enter run-off period"
           />
         </Grid>
       </Grid>
@@ -184,9 +196,10 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
       {/* Basic Fields - Row 4 */}
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Assign Contacts"
             value={getLabel(operationalUnit.assignContacts, ASSIGN_CONTACTS_LABELS)}
+            placeholder="Select contacts"
           />
         </Grid>
       </Grid>
@@ -206,52 +219,102 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
             Addresses
           </Typography>
           {operationalUnit.addresses.map((address, index) => (
-            <Box key={index} sx={{ mb: index < operationalUnit.addresses.length - 1 ? 3 : 0 }}>
-              {index > 0 && (
-                <Divider sx={{ my: 2, borderColor: '#E5E5E5' }} />
-              )}
-              <Grid container spacing={3} sx={{ mb: 2 }}>
+            <Box key={index} sx={{ mb: 3 }}>
+              {/* Address Row 1 */}
+              <Grid container spacing={3} sx={{ mb: 3 }}>
                 <Grid size={{ xs: 12, md: 4 }}>
-                  <ReadOnlyField
+                  <ReadOnlySelectField
                     label="Address Type"
                     value={getLabel(address.addressType, ADDRESS_TYPE_LABELS)}
+                    placeholder="Select Address type"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
                   <ReadOnlyField
                     label="Address 1"
                     value={address.address1}
+                    placeholder="Enter Address 1"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
                   <ReadOnlyField
                     label="Address 2"
                     value={address.address2}
+                    placeholder="Enter Address 2"
                   />
                 </Grid>
               </Grid>
-              <Grid container spacing={3}>
+
+              {/* Address Row 2 */}
+              <Grid container spacing={3} alignItems="flex-end">
                 <Grid size={{ xs: 12, md: 4 }}>
                   <ReadOnlyField
                     label="City"
                     value={address.city}
+                    placeholder="Enter city"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
                   <ReadOnlyField
                     label="State"
                     value={address.state}
+                    placeholder="Enter state"
+                    required
                   />
                 </Grid>
-                <Grid size={{ xs: 12, md: 4 }}>
+                <Grid size={{ xs: 12, md: 3 }}>
                   <ReadOnlyField
                     label="Zip"
                     value={address.zip}
+                    placeholder="Enter zip"
+                    required
                   />
+                </Grid>
+                <Grid size={{ xs: 12, md: 1 }} sx={{ display: 'flex', justifyContent: 'flex-end', pb: 0.5 }}>
+                  <IconButton
+                    disabled
+                    sx={{
+                      color: '#002677',
+                      opacity: 0.5,
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                      },
+                    }}
+                  >
+                    <DeleteOutlineIcon />
+                  </IconButton>
                 </Grid>
               </Grid>
             </Box>
           ))}
+
+          {/* Add another address link */}
+          <Box sx={{ mt: 2 }}>
+            <Link
+              component="button"
+              underline="none"
+              disabled
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
+                color: '#002677',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'default',
+                opacity: 0.5,
+                '&:hover': {
+                  textDecoration: 'none',
+                },
+              }}
+            >
+              <AddIcon sx={{ fontSize: '18px' }} />
+              Add another address
+            </Link>
+          </Box>
         </>
       )}
 
@@ -272,51 +335,58 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
 
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid size={{ xs: 12, md: 4 }}>
-              <ReadOnlyField
+              <ReadOnlySelectField
                 label="Invoice Breakout"
                 value={getLabel(operationalUnit.billingAttributesOverride?.invoiceBreakout, INVOICE_BREAKOUT_LABELS)}
+                placeholder="Select invoice breakout"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <ReadOnlyField
+              <ReadOnlySelectField
                 label="Claim Invoice Frequency"
                 value={getLabel(operationalUnit.billingAttributesOverride?.claimInvoiceFrequency, INVOICE_FREQUENCY_LABELS)}
+                placeholder="Select frequency"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <ReadOnlyField
+              <ReadOnlySelectField
                 label="Fee Invoice Frequency"
                 value={getLabel(operationalUnit.billingAttributesOverride?.feeInvoiceFrequency, INVOICE_FREQUENCY_LABELS)}
+                placeholder="Select frequency"
               />
             </Grid>
           </Grid>
 
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid size={{ xs: 12, md: 4 }}>
-              <ReadOnlyField
+              <ReadOnlySelectField
                 label="Invoice Aggregation Level"
                 value={getLabel(operationalUnit.billingAttributesOverride?.invoiceAggregationLevel, INVOICE_AGGREGATION_LABELS)}
+                placeholder="Select aggregation level"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <ReadOnlyField
+              <ReadOnlySelectField
                 label="Invoice Type"
                 value={getLabel(operationalUnit.billingAttributesOverride?.invoiceType, INVOICE_TYPE_LABELS)}
+                placeholder="Select invoice type"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <ReadOnlyField
+              <ReadOnlySelectField
                 label="Delivery Option"
                 value={getLabel(operationalUnit.billingAttributesOverride?.deliveryOption, DELIVERY_LABELS)}
+                placeholder="Select delivery option"
               />
             </Grid>
           </Grid>
 
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 4 }}>
-              <ReadOnlyField
+              <ReadOnlySelectField
                 label="Support Document Version"
                 value={getLabel(operationalUnit.billingAttributesOverride?.supportDocumentVersion, SUPPORT_DOC_VERSION_LABELS)}
+                placeholder="Select version"
               />
             </Grid>
           </Grid>

@@ -7,7 +7,9 @@ General Rules:
 - Use Mui for all UI components. Reference the "mui-mcp" MCP server as needed. If possible please make it backward compatibility to v5.x
 
 
-Figma Rules:
-- Please cache the Figma response and save it to /figma-cache/${fileKey}-${nodeId}.data to avoid unnecessary requests to the Figma API. Save the data as is, like this data figma-cache/wCQL31V1xu6siPZUTg6T4X-903-16487.data.
+Figma/Design Rules:
+- Please cache the Figma response and save it to /figma-cache/${fileKey}-${nodeId} to avoid unnecessary requests to the Figma API.
 - Use the Figma MCP(if cache is not available) to fetch and reference design specifications before implementing.
 - Do not create custom designs. If the Figma MCP fails or is unavailable, inform the user and request clarification rather than proceeding with alternative designs.
+- Please ask sample screenshot of the page for reference.
+- Design the components base on figma design and screenshot

@@ -23,15 +23,15 @@ export const InfoBanner: React.FC<InfoBannerProps> = ({ title, message }) => {
         backgroundColor: '#E5F8FB',
         border: '1px solid #002677',
         borderRadius: '12px',
-        padding: '16px 24px',
+        padding: '16px',
         '& .MuiAlert-icon': {
-          marginRight: '12px',
+          marginRight: '8px',
           padding: 0,
           alignItems: 'flex-start',
           paddingTop: '2px',
         },
         '& .MuiAlert-message': {
-          padding: 0,
+          padding: '2px 0',
         },
       }}
     >
@@ -40,7 +40,7 @@ export const InfoBanner: React.FC<InfoBannerProps> = ({ title, message }) => {
           sx={{
             fontSize: '16px',
             fontWeight: 700,
-            color: '#000000',
+            color: '#002677',
             marginBottom: '4px',
             lineHeight: 1.4,
           }}

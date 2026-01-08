@@ -44,7 +44,6 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         <ReviewAccordion
           title="Contract Details"
           subtitle="Please review all fields you have filled out and make sure they are correct before clicking on confirm."
-          defaultExpanded
           onEdit={() => onEditStep(1)}
         >
           <ContractDetailsReview formData={formData} />
@@ -54,7 +53,6 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         <ReviewAccordion
           title="Contacts & Access"
           subtitle="Complete the fields below."
-          defaultExpanded
           onEdit={() => onEditStep(2)}
         >
           <ContactsReview formData={formData} />
@@ -64,9 +62,8 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         {formData.operationalUnits && formData.operationalUnits.map((unit, index) => (
           <ReviewAccordion
             key={index}
-            title={`Operational Units - ${unit.name || 'Unnamed Unit'}`}
+            title={`Operational Units - ${unit.name || 'Operational Unit Name'}`}
             subtitle="Please review all fields you have filled out and make sure they are correct before clicking on confirm."
-            defaultExpanded
             onEdit={() => onEditStep(3)}
           >
             <OperationalUnitReview operationalUnit={unit} />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Grid, Divider } from '@mui/material';
 import { ReadOnlyField } from './ReadOnlyField';
+import { ReadOnlySelectField } from './ReadOnlySelectField';
 import type { AddClientCombinedFormData } from '../schemas/addClientSchema';
 
 interface ContactsReviewProps {
@@ -46,21 +47,24 @@ export const ContactsReview: React.FC<ContactsReviewProps> = ({
             {/* Contact Fields - Row 1 */}
             <Grid container spacing={3} sx={{ mb: 3 }}>
               <Grid size={{ xs: 12, md: 4 }}>
-                <ReadOnlyField
+                <ReadOnlySelectField
                   label="Contact Type"
                   value={getLabel(contact.contactType, CONTACT_TYPE_LABELS)}
+                  placeholder="Select contact type"
                 />
               </Grid>
               <Grid size={{ xs: 12, md: 4 }}>
                 <ReadOnlyField
                   label="First Name"
                   value={contact.firstName}
+                  placeholder="Enter first name"
                 />
               </Grid>
               <Grid size={{ xs: 12, md: 4 }}>
                 <ReadOnlyField
                   label="Last Name"
                   value={contact.lastName}
+                  placeholder="Enter last name"
                 />
               </Grid>
             </Grid>
@@ -71,18 +75,21 @@ export const ContactsReview: React.FC<ContactsReviewProps> = ({
                 <ReadOnlyField
                   label="Email"
                   value={contact.email}
+                  placeholder="Enter email"
                 />
               </Grid>
               <Grid size={{ xs: 12, md: 4 }}>
-                <ReadOnlyField
+                <ReadOnlySelectField
                   label="Status"
                   value={getLabel(contact.status, STATUS_LABELS)}
+                  placeholder="Select status"
                 />
               </Grid>
               <Grid size={{ xs: 12, md: 4 }}>
-                <ReadOnlyField
+                <ReadOnlySelectField
                   label="Send email Notification"
                   value={getLabel(contact.sendEmailNotification, YES_NO_LABELS)}
+                  placeholder="Select option"
                 />
               </Grid>
             </Grid>
