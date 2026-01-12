@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Accordion,
   AccordionSummary,
@@ -9,16 +9,19 @@ import {
   Divider,
   IconButton,
   Button,
+  Switch,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useFieldArray, useWatch } from 'react-hook-form';
-import type { Control, FieldErrors } from 'react-hook-form';
+import type { Control, FieldErrors, UseFormSetValue } from 'react-hook-form';
 import type { AddClientCombinedFormData } from '../schemas/addClientSchema';
-import { defaultOperationalUnitAddressData } from '../schemas/addClientSchema';
+import { defaultOperationalUnitAddressData, defaultOperationalUnitSuppressionEntryData } from '../schemas/addClientSchema';
 import { FormTextField } from './FormTextField';
 import { FormSelectField } from './FormSelectField';
+import { FormDateField } from './FormDateField';
+import { AssignContactsChips } from './AssignContactsChips';
 
 // Dropdown options constants (Requirements 2.3-2.8)
 // Market Segment Options (Requirement 2.3)
@@ -63,14 +66,6 @@ const PRICING_OPTIONS = [
   { value: 'traditional', label: 'Traditional' },
 ];
 
-// Assign Contacts Options (Requirement 2.10)
-const ASSIGN_CONTACTS_OPTIONS = [
-  { value: 'primary', label: 'Primary Contact' },
-  { value: 'billing', label: 'Billing Contact' },
-  { value: 'technical', label: 'Technical Contact' },
-  { value: 'executive', label: 'Executive Sponsor' },
-];
-
 // Address Type Options (Requirements 3.2)
 const ADDRESS_TYPE_OPTIONS = [
   { value: 'billing', label: 'Billing' },
@@ -78,14 +73,7 @@ const ADDRESS_TYPE_OPTIONS = [
   { value: 'physical', label: 'Physical' },
 ];
 
-// Billing Attributes Override Options (Requirements 4.1-4.5)
-// Mirrored from ContractDetailsStep billing section
-const INVOICE_BREAKOUT_OPTIONS = [
-  { value: 'client', label: 'Client' },
-  { value: 'operational_unit', label: 'Operational Unit' },
-  { value: 'both', label: 'Both' },
-];
-
+// Billing Attributes Override Options (Requirements 4.6-4.17)
 const INVOICE_FREQUENCY_OPTIONS = [
   { value: 'weekly', label: 'Weekly' },
   { value: 'biweekly', label: 'Bi-Weekly' },
@@ -117,9 +105,64 @@ const SUPPORT_DOC_VERSION_OPTIONS = [
   { value: 'v3', label: 'Version 3' },
 ];
 
+// Payment Term Options (Requirements 4.14-4.17)
+const PAYMENT_TERM_OPTIONS = [
+  { value: '15', label: '15 Days' },
+  { value: '30', label: '30 Days' },
+  { value: '45', label: '45 Days' },
+  { value: '60', label: '60 Days' },
+];
+
+// Day Type Options (Requirements 4.15, 4.17)
+const DAY_TYPE_OPTIONS = [
+  { value: 'calendar', label: 'Calendar Days' },
+  { value: 'business', label: 'Business Days' },
+];
+
+// Suppression Type Options (Requirements 6.3)
+const SUPPRESSION_TYPE_OPTIONS = [
+  { value: 'billing', label: 'Billing Suppression' },
+  { value: 'claims', label: 'Claims Suppression' },
+  { value: 'fees', label: 'Fees Suppression' },
+];
+
+// Mock contact options for Assign Contacts dropdown (Task 3.3)
+// These serve as fallback when no contacts are defined in ContactsAccessStep
+const MOCK_CONTACT_OPTIONS = [
+  { value: 'alice_johnson', label: 'Alice Johnson' },
+  { value: 'james_williams', label: 'James Williams' },
+  { value: 'sarah_davis', label: 'Sarah Davis' },
+  { value: 'michael_brown', label: 'Michael Brown' },
+  { value: 'emily_wilson', label: 'Emily Wilson' },
+];
+
+// Helper function to convert contacts from ContactsAccessStep to dropdown options
+const getContactOptionsFromFormContacts = (
+  contacts: AddClientCombinedFormData['contacts'] | undefined
+): { value: string; label: string }[] => {
+  if (!contacts || contacts.length === 0) {
+    return MOCK_CONTACT_OPTIONS;
+  }
+
+  // Filter contacts that have at least first name or last name
+  const validContacts = contacts.filter(
+    (contact) => contact.firstName || contact.lastName
+  );
+
+  if (validContacts.length === 0) {
+    return MOCK_CONTACT_OPTIONS;
+  }
+
+  return validContacts.map((contact, index) => ({
+    value: `contact_${index}_${contact.email || index}`,
+    label: `${contact.firstName || ''} ${contact.lastName || ''}`.trim() || `Contact ${index + 1}`,
+  }));
+};
+
 interface OperationalUnitsStepProps {
   control: Control<AddClientCombinedFormData>;
   errors: FieldErrors<AddClientCombinedFormData>;
+  setValue: UseFormSetValue<AddClientCombinedFormData>;
 }
 
 // Nested component for address fields within each operational unit (Task 4.2)
@@ -272,8 +315,21 @@ const OperationalUnitAddressSection: React.FC<OperationalUnitAddressSectionProps
   );
 };
 
+// Payment Method Options (Requirement 5.1)
+const PAYMENT_METHOD_OPTIONS = [
+  { value: 'ach', label: 'ACH/EFT' },
+  { value: 'check', label: 'Check' },
+  { value: 'wire', label: 'Wire Transfer' },
+];
+
+// Bank Account Type Options (Requirement 5.3)
+const BANK_ACCOUNT_TYPE_OPTIONS = [
+  { value: 'checking', label: 'Checking' },
+  { value: 'savings', label: 'Savings' },
+];
+
 // Billing Attributes Override Section Component (Task 5.1, 5.2)
-// Requirements: 4.1-4.5
+// Requirements: 4.1-4.5, 5.1-5.6
 interface BillingAttributesOverrideSectionProps {
   control: Control<AddClientCombinedFormData>;
   errors: FieldErrors<AddClientCombinedFormData>;
@@ -287,9 +343,18 @@ const BillingAttributesOverrideSection: React.FC<BillingAttributesOverrideSectio
 }) => {
   const [expanded, setExpanded] = useState(false);
 
+  // Watch payment method to conditionally show bank account fields (Requirement 5.3-5.5)
+  const paymentMethod = useWatch({
+    control,
+    name: `operationalUnits.${operationalUnitIndex}.billingAttributesOverride.paymentMethod`,
+  });
+
   const handleAccordionChange = (_event: React.SyntheticEvent, isExpanded: boolean) => {
     setExpanded(isExpanded);
   };
+
+  // Check if payment method is ACH/EFT to show bank account fields (Requirement 5.3)
+  const showBankAccountFields = paymentMethod === 'ach';
 
   return (
     <Accordion
@@ -356,25 +421,16 @@ const BillingAttributesOverrideSection: React.FC<BillingAttributesOverrideSectio
           padding: '0 24px 24px 24px',
         }}
       >
-        {/* Billing Override Row 1: Invoice Breakout, Claim Invoice Frequency, Fee Invoice Frequency */}
+        {/* Billing Override Row 1: Claim Invoice Frequency, Fee Invoice Frequency, Invoice Aggregation Level */}
+        {/* Requirements 4.6-4.8 */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <FormSelectField
-              name={`operationalUnits.${operationalUnitIndex}.billingAttributesOverride.invoiceBreakout`}
-              control={control}
-              label="Invoice Breakout"
-              options={INVOICE_BREAKOUT_OPTIONS}
-              placeholder="Select invoice breakout"
-              error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.invoiceBreakout}
-            />
-          </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
             <FormSelectField
               name={`operationalUnits.${operationalUnitIndex}.billingAttributesOverride.claimInvoiceFrequency`}
               control={control}
               label="Claim Invoice Frequency"
               options={INVOICE_FREQUENCY_OPTIONS}
-              placeholder="Select frequency"
+              placeholder="Select invoice frequency"
               error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.claimInvoiceFrequency}
             />
           </Grid>
@@ -384,24 +440,25 @@ const BillingAttributesOverrideSection: React.FC<BillingAttributesOverrideSectio
               control={control}
               label="Fee Invoice Frequency"
               options={INVOICE_FREQUENCY_OPTIONS}
-              placeholder="Select frequency"
+              placeholder="Select invoice frequency"
               error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.feeInvoiceFrequency}
             />
           </Grid>
-        </Grid>
-
-        {/* Billing Override Row 2: Invoice Aggregation Level, Invoice Type, Delivery Option */}
-        <Grid container spacing={3} sx={{ mb: 3 }}>
           <Grid size={{ xs: 12, md: 4 }}>
             <FormSelectField
               name={`operationalUnits.${operationalUnitIndex}.billingAttributesOverride.invoiceAggregationLevel`}
               control={control}
               label="Invoice Aggregation Level"
               options={INVOICE_AGGREGATION_OPTIONS}
-              placeholder="Select aggregation level"
+              placeholder="Select Aggregation level"
               error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.invoiceAggregationLevel}
             />
           </Grid>
+        </Grid>
+
+        {/* Billing Override Row 2: Invoice Type, Invoicing Claim Quantity Counts, Delivery Option */}
+        {/* Requirements 4.9-4.11 */}
+        <Grid container spacing={3} sx={{ mb: 3 }}>
           <Grid size={{ xs: 12, md: 4 }}>
             <FormSelectField
               name={`operationalUnits.${operationalUnitIndex}.billingAttributesOverride.invoiceType`}
@@ -410,6 +467,19 @@ const BillingAttributesOverrideSection: React.FC<BillingAttributesOverrideSectio
               options={INVOICE_TYPE_OPTIONS}
               placeholder="Select invoice type"
               error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.invoiceType}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <FormSelectField
+              name={`operationalUnits.${operationalUnitIndex}.billingAttributesOverride.invoicingClaimQuantityCounts`}
+              control={control}
+              label="Invoicing Claim Quantity Counts"
+              options={[
+                { value: 'yes', label: 'Yes' },
+                { value: 'no', label: 'No' },
+              ]}
+              placeholder="Select quantity count"
+              error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.invoicingClaimQuantityCounts}
             />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
@@ -424,27 +494,371 @@ const BillingAttributesOverrideSection: React.FC<BillingAttributesOverrideSectio
           </Grid>
         </Grid>
 
-        {/* Billing Override Row 3: Support Document Version */}
-        <Grid container spacing={3}>
+        {/* Billing Override Row 3: Support Document Version, Invoice Static Data */}
+        {/* Requirements 4.12-4.13 */}
+        <Grid container spacing={3} sx={{ mb: 3 }}>
           <Grid size={{ xs: 12, md: 4 }}>
             <FormSelectField
               name={`operationalUnits.${operationalUnitIndex}.billingAttributesOverride.supportDocumentVersion`}
               control={control}
               label="Support Document Version"
               options={SUPPORT_DOC_VERSION_OPTIONS}
-              placeholder="Select version"
+              placeholder="Select document version"
               error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.supportDocumentVersion}
             />
           </Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <FormTextField
+              name={`operationalUnits.${operationalUnitIndex}.billingAttributesOverride.invoiceStaticData`}
+              control={control}
+              label="Invoice Static Data"
+              placeholder="Enter invoice static data"
+              error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.invoiceStaticData}
+            />
+          </Grid>
         </Grid>
+
+        {/* Billing Override Row 4: Fee Invoice Payment Term, Fee Invoice Payment Term Day Type */}
+        {/* Requirements 4.14-4.15 */}
+        <Grid container spacing={3} sx={{ mb: 3 }}>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <FormSelectField
+              name={`operationalUnits.${operationalUnitIndex}.billingAttributesOverride.feeInvoicePaymentTerm`}
+              control={control}
+              label="Fee Invoice Payment Term"
+              options={PAYMENT_TERM_OPTIONS}
+              placeholder="Select No. of days"
+              error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.feeInvoicePaymentTerm}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <FormSelectField
+              name={`operationalUnits.${operationalUnitIndex}.billingAttributesOverride.feeInvoicePaymentTermDayType`}
+              control={control}
+              label="Fee Invoice Payment Term Day Type"
+              options={DAY_TYPE_OPTIONS}
+              placeholder="Select day type"
+              error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.feeInvoicePaymentTermDayType}
+            />
+          </Grid>
+        </Grid>
+
+        {/* Billing Override Row 5: Claim Invoice Payment Term, Claim Invoice Payment Term Day Type */}
+        {/* Requirements 4.16-4.17 */}
+        <Grid container spacing={3} sx={{ mb: 3 }}>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <FormSelectField
+              name={`operationalUnits.${operationalUnitIndex}.billingAttributesOverride.claimInvoicePaymentTerm`}
+              control={control}
+              label="Claim Invoice Payment Term"
+              options={PAYMENT_TERM_OPTIONS}
+              placeholder="Select No. of days"
+              error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.claimInvoicePaymentTerm}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <FormSelectField
+              name={`operationalUnits.${operationalUnitIndex}.billingAttributesOverride.claimInvoicePaymentTermDayType`}
+              control={control}
+              label="Claim Invoice Payment Term Day Type"
+              options={DAY_TYPE_OPTIONS}
+              placeholder="Select day type"
+              error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.claimInvoicePaymentTermDayType}
+            />
+          </Grid>
+        </Grid>
+
+        {/* Payment Method Section (Task 5.1, 5.2, 5.3) */}
+        {/* Requirement 5.1: Payment Method dropdown */}
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <FormSelectField
+              name={`operationalUnits.${operationalUnitIndex}.billingAttributesOverride.paymentMethod`}
+              control={control}
+              label="Payment Method"
+              options={PAYMENT_METHOD_OPTIONS}
+              placeholder="Select payment method"
+              error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.paymentMethod}
+            />
+          </Grid>
+        </Grid>
+
+        {/* Requirement 5.2: Horizontal divider after Payment Method */}
+        {paymentMethod && (
+          <Divider sx={{ my: 3, borderColor: '#AAAAAA' }} />
+        )}
+
+        {/* Requirement 5.3-5.6: Conditional bank account fields when Payment Method is ACH/EFT */}
+        {showBankAccountFields && (
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <FormSelectField
+                name={`operationalUnits.${operationalUnitIndex}.billingAttributesOverride.bankAccountType`}
+                control={control}
+                label="Bank Account Type"
+                options={BANK_ACCOUNT_TYPE_OPTIONS}
+                placeholder="Select bank account type"
+                error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.bankAccountType}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <FormTextField
+                name={`operationalUnits.${operationalUnitIndex}.billingAttributesOverride.routingNumber`}
+                control={control}
+                label="Routing Number"
+                placeholder="Enter routing number"
+                error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.routingNumber}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <FormTextField
+                name={`operationalUnits.${operationalUnitIndex}.billingAttributesOverride.accountNumber`}
+                control={control}
+                label="Account Number"
+                placeholder="Enter account number"
+                error={errors.operationalUnits?.[operationalUnitIndex]?.billingAttributesOverride?.accountNumber}
+              />
+            </Grid>
+          </Grid>
+        )}
       </AccordionDetails>
     </Accordion>
+  );
+};
+
+// Suppressions Section Component (Task 6)
+// Requirements: 6.1-6.11
+interface SuppressionsSectionProps {
+  control: Control<AddClientCombinedFormData>;
+  errors: FieldErrors<AddClientCombinedFormData>;
+  operationalUnitIndex: number;
+  setValue: UseFormSetValue<AddClientCombinedFormData>;
+}
+
+const SuppressionsSection: React.FC<SuppressionsSectionProps> = ({
+  control,
+  errors,
+  operationalUnitIndex,
+  setValue,
+}) => {
+  // Watch addSuppressions value to conditionally show suppression fields (Requirement 6.2)
+  const addSuppressions = useWatch({
+    control,
+    name: `operationalUnits.${operationalUnitIndex}.addSuppressions`,
+  });
+
+  // Nested useFieldArray for suppressions within each operational unit (Task 6.3)
+  const { fields: suppressionFields, append: appendSuppression, remove: removeSuppression } = useFieldArray({
+    control,
+    name: `operationalUnits.${operationalUnitIndex}.suppressions`,
+  });
+
+  // Initialize with one entry when Yes is selected (Task 6.3)
+  useEffect(() => {
+    if (addSuppressions === true && suppressionFields.length === 0) {
+      appendSuppression(defaultOperationalUnitSuppressionEntryData);
+    }
+  }, [addSuppressions, suppressionFields.length, appendSuppression]);
+
+  // Handle toggle change
+  const handleToggleChange = (checked: boolean) => {
+    setValue(`operationalUnits.${operationalUnitIndex}.addSuppressions`, checked);
+    
+    // Clear suppressions when toggled off
+    if (!checked && suppressionFields.length > 0) {
+      for (let i = suppressionFields.length - 1; i >= 0; i--) {
+        removeSuppression(i);
+      }
+    }
+  };
+
+  // Handle add another suppression (Task 6.4)
+  const handleAddSuppression = () => {
+    appendSuppression(defaultOperationalUnitSuppressionEntryData);
+  };
+
+  // Handle delete suppression (Task 6.5)
+  const handleDeleteSuppression = (suppressionIndex: number) => {
+    if (suppressionFields.length > 1) {
+      removeSuppression(suppressionIndex);
+    }
+  };
+
+  return (
+    <Box sx={{ mt: 3 }}>
+      {/* Horizontal divider before suppressions section */}
+      <Divider sx={{ mb: 3, borderColor: '#AAAAAA' }} />
+
+      {/* Add Suppressions Toggle Switch (matching Contract Details) */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Typography
+            sx={{
+              fontSize: '16px',
+              fontWeight: 700,
+              color: '#323334',
+            }}
+          >
+            Add Suppressions
+          </Typography>
+          <Switch
+            checked={addSuppressions === true}
+            onChange={(e) => handleToggleChange(e.target.checked)}
+            sx={{
+              width: 36,
+              height: 20,
+              padding: 0,
+              '& .MuiSwitch-switchBase': {
+                padding: 0,
+                margin: 0,
+                transitionDuration: '300ms',
+                '&.Mui-checked': {
+                  transform: 'translateX(16px)',
+                  '& + .MuiSwitch-track': {
+                    backgroundColor: '#FFFFFF',
+                    opacity: 1,
+                    border: '2px solid #0C55B8',
+                  },
+                  '& .MuiSwitch-thumb': {
+                    backgroundColor: '#0C55B8',
+                    '&:before': {
+                      content: '""',
+                      position: 'absolute',
+                      width: '100%',
+                      height: '100%',
+                      backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="white"><path d="M8 15L3 10L4.41 8.59L8 12.17L15.59 4.58L17 6L8 15Z"/></svg>')`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'center',
+                      backgroundSize: '12px 12px',
+                    },
+                  },
+                },
+              },
+              '& .MuiSwitch-thumb': {
+                boxSizing: 'border-box',
+                width: 20,
+                height: 20,
+                backgroundColor: '#0C55B8',
+                boxShadow: 'none',
+                position: 'relative',
+              },
+              '& .MuiSwitch-track': {
+                borderRadius: '41px',
+                backgroundColor: '#FFFFFF',
+                border: '2px solid #0C55B8',
+                opacity: 1,
+              },
+            }}
+          />
+          <Typography
+            sx={{
+              fontSize: '16px',
+              fontWeight: 400,
+              color: '#4B4D4F',
+            }}
+          >
+            Yes
+          </Typography>
+        </Box>
+
+        {/* Suppression Entry Fields - shown only when toggle is on (Task 6.2, 6.3) */}
+        {addSuppressions === true && (
+          <Box sx={{ mt: 2 }}>
+            {suppressionFields.map((suppressionField, suppressionIndex) => (
+              <Box key={suppressionField.id}>
+                {/* Horizontal divider between suppression entries (Task 6.6) */}
+                {suppressionIndex > 0 && (
+                  <Divider sx={{ my: 3, borderColor: '#AAAAAA' }} />
+                )}
+
+                {/* Suppression Entry Row (Task 6.2) */}
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                  <Grid container spacing={3} sx={{ flex: 1 }}>
+                    {/* Suppression Type dropdown (Requirement 6.3) */}
+                    <Grid size={{ xs: 12, md: 4 }}>
+                      <FormSelectField
+                        name={`operationalUnits.${operationalUnitIndex}.suppressions.${suppressionIndex}.suppressionType`}
+                        control={control}
+                        label="Select Suppression Type"
+                        options={SUPPRESSION_TYPE_OPTIONS}
+                        placeholder="Select suppression type"
+                        error={errors.operationalUnits?.[operationalUnitIndex]?.suppressions?.[suppressionIndex]?.suppressionType}
+                      />
+                    </Grid>
+                    {/* Suppression Start Date picker (Requirement 6.4) */}
+                    <Grid size={{ xs: 12, md: 4 }}>
+                      <FormDateField
+                        name={`operationalUnits.${operationalUnitIndex}.suppressions.${suppressionIndex}.startDate`}
+                        control={control}
+                        label="Suppression Start Date"
+                        placeholder="MM-DD-YYYY"
+                        error={errors.operationalUnits?.[operationalUnitIndex]?.suppressions?.[suppressionIndex]?.startDate}
+                      />
+                    </Grid>
+                    {/* Suppression End Date picker (Requirement 6.5) */}
+                    <Grid size={{ xs: 12, md: 4 }}>
+                      <FormDateField
+                        name={`operationalUnits.${operationalUnitIndex}.suppressions.${suppressionIndex}.endDate`}
+                        control={control}
+                        label="Suppression End Date"
+                        placeholder="MM-DD-YYYY"
+                        error={errors.operationalUnits?.[operationalUnitIndex]?.suppressions?.[suppressionIndex]?.endDate}
+                      />
+                    </Grid>
+                  </Grid>
+
+                  {/* Delete button for suppressions (except first) (Task 6.5) */}
+                  {suppressionFields.length > 1 && suppressionIndex > 0 && (
+                    <IconButton
+                      onClick={() => handleDeleteSuppression(suppressionIndex)}
+                      aria-label={`Delete suppression ${suppressionIndex + 1}`}
+                      sx={{
+                        color: '#C40000',
+                        padding: '8px',
+                        mt: 3,
+                        '&:hover': {
+                          backgroundColor: 'rgba(196, 0, 0, 0.08)',
+                        },
+                      }}
+                    >
+                      <DeleteOutlineIcon sx={{ fontSize: '20px' }} />
+                    </IconButton>
+                  )}
+                </Box>
+              </Box>
+            ))}
+
+            {/* Add another suppression button (Task 6.4) */}
+            <Box sx={{ mt: 3 }}>
+              <Button
+                variant="text"
+                startIcon={<AddIcon />}
+                onClick={handleAddSuppression}
+                sx={{
+                  color: '#0C55B8',
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  padding: '8px 16px',
+                  '&:hover': {
+                    backgroundColor: 'rgba(12, 85, 184, 0.08)',
+                  },
+                }}
+              >
+                Add another suppression
+              </Button>
+            </Box>
+          </Box>
+        )}
+      </Box>
+    </Box>
   );
 };
 
 export const OperationalUnitsStep: React.FC<OperationalUnitsStepProps> = ({
   control,
   errors,
+  setValue,
 }) => {
   // Track which operational unit card is expanded (index-based)
   // Initialize to 0 so first card is expanded by default (Requirement 1.4)
@@ -462,6 +876,16 @@ export const OperationalUnitsStep: React.FC<OperationalUnitsStepProps> = ({
     control,
     name: 'operationalUnits',
   });
+
+  // Watch contacts from ContactsAccessStep (Task 3.3)
+  // Use these contacts for the Assign Contacts dropdown
+  const contacts = useWatch({
+    control,
+    name: 'contacts',
+  });
+
+  // Get contact options from form contacts or use mock data as fallback
+  const contactOptions = getContactOptionsFromFormContacts(contacts);
 
   // Task 6.1: Implement accordion expand/collapse logic
   // Only one card expanded at a time - clicking collapsed card expands it and collapses others
@@ -491,16 +915,18 @@ export const OperationalUnitsStep: React.FC<OperationalUnitsStepProps> = ({
     append({
       name: '',
       id: '',
+      lobNumeric: '',
       lineOfBusiness: '',
-      runOffPeriod: '',
       marketSegment: '',
       mrPlanType: '',
       mrGroupIndividual: '',
       mrClassification: '',
       passThroughTraditional: '',
-      assignContacts: '',
+      assignedContacts: [],
       addresses: [defaultOperationalUnitAddressData],
       billingAttributesOverride: undefined,
+      addSuppressions: false,
+      suppressions: [],
     });
     // Expand the newly added card
     setExpandedIndex(fields.length);
@@ -508,8 +934,8 @@ export const OperationalUnitsStep: React.FC<OperationalUnitsStepProps> = ({
 
   return (
     <Box>
-      {/* Operational unit cards with 56px gap (Requirement 5.10) */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '56px' }}>
+      {/* Operational unit cards with 16px gap (Requirement 7.10) */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {fields.map((field, index) => {
           const isExpanded = expandedIndex === index;
           // Task 6.2: Get the operational unit name for collapsed card title
@@ -608,9 +1034,9 @@ export const OperationalUnitsStep: React.FC<OperationalUnitsStepProps> = ({
                   padding: '30px 24px',
                 }}
               >
-                {/* Basic Fields Section (Task 3) */}
+                {/* Basic Fields Section (Task 2) */}
                 <Box>
-                  {/* Row 1: Operational Unit Name, Operational Unit ID, Market Segment (Requirements 2.1-2.3, 7.4) */}
+                  {/* Row 1: Operational Unit Name, Operational Unit ID (disabled), LOB Numeric (Requirements 2.1-2.3, 9.4) */}
                   <Grid container spacing={3} sx={{ mb: 3 }}>
                     <Grid size={{ xs: 12, md: 4 }}>
                       <FormTextField
@@ -623,15 +1049,32 @@ export const OperationalUnitsStep: React.FC<OperationalUnitsStepProps> = ({
                       />
                     </Grid>
                     <Grid size={{ xs: 12, md: 4 }}>
+                      <Box sx={{ opacity: 0.5 }}>
+                        <FormTextField
+                          name={`operationalUnits.${index}.id`}
+                          control={control}
+                          label="Operational Unit ID"
+                          required
+                          placeholder="Enter name"
+                          disabled
+                          error={errors.operationalUnits?.[index]?.id}
+                        />
+                      </Box>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <FormTextField
-                        name={`operationalUnits.${index}.id`}
+                        name={`operationalUnits.${index}.lobNumeric`}
                         control={control}
-                        label="Operational Unit ID"
+                        label="LOB Numeric"
                         required
                         placeholder="Enter name"
-                        error={errors.operationalUnits?.[index]?.id}
+                        error={errors.operationalUnits?.[index]?.lobNumeric}
                       />
                     </Grid>
+                  </Grid>
+
+                  {/* Row 2: Market Segment, Line of Business, M&R Plan Type (Requirements 2.4-2.6, 9.5) */}
+                  <Grid container spacing={3} sx={{ mb: 3 }}>
                     <Grid size={{ xs: 12, md: 4 }}>
                       <FormSelectField
                         name={`operationalUnits.${index}.marketSegment`}
@@ -642,10 +1085,6 @@ export const OperationalUnitsStep: React.FC<OperationalUnitsStepProps> = ({
                         error={errors.operationalUnits?.[index]?.marketSegment}
                       />
                     </Grid>
-                  </Grid>
-
-                  {/* Row 2: Line of Business, M&R Plan Type, M&R Group/Individual (Requirements 2.4-2.6, 7.5) */}
-                  <Grid container spacing={3} sx={{ mb: 3 }}>
                     <Grid size={{ xs: 12, md: 4 }}>
                       <FormSelectField
                         name={`operationalUnits.${index}.lineOfBusiness`}
@@ -667,6 +1106,10 @@ export const OperationalUnitsStep: React.FC<OperationalUnitsStepProps> = ({
                         error={errors.operationalUnits?.[index]?.mrPlanType}
                       />
                     </Grid>
+                  </Grid>
+
+                  {/* Row 3: M&R Group/Individual, M&R Classification, Pass through/Traditional pricing (Requirements 2.7-2.9, 9.6) */}
+                  <Grid container spacing={3}>
                     <Grid size={{ xs: 12, md: 4 }}>
                       <FormSelectField
                         name={`operationalUnits.${index}.mrGroupIndividual`}
@@ -677,10 +1120,6 @@ export const OperationalUnitsStep: React.FC<OperationalUnitsStepProps> = ({
                         error={errors.operationalUnits?.[index]?.mrGroupIndividual}
                       />
                     </Grid>
-                  </Grid>
-
-                  {/* Row 3: M&R Classification, Pass through/Traditional pricing, Run-off Period (Requirements 2.7-2.9, 7.6) */}
-                  <Grid container spacing={3} sx={{ mb: 3 }}>
                     <Grid size={{ xs: 12, md: 4 }}>
                       <FormSelectField
                         name={`operationalUnits.${index}.mrClassification`}
@@ -701,31 +1140,15 @@ export const OperationalUnitsStep: React.FC<OperationalUnitsStepProps> = ({
                         error={errors.operationalUnits?.[index]?.passThroughTraditional}
                       />
                     </Grid>
-                    <Grid size={{ xs: 12, md: 4 }}>
-                      <FormTextField
-                        name={`operationalUnits.${index}.runOffPeriod`}
-                        control={control}
-                        label="Run-off Period"
-                        required
-                        placeholder="Enter Period"
-                        error={errors.operationalUnits?.[index]?.runOffPeriod}
-                      />
-                    </Grid>
                   </Grid>
 
-                  {/* Row 4: Assign Contacts (Requirements 2.10, 7.7) */}
-                  <Grid container spacing={3}>
-                    <Grid size={{ xs: 12, md: 4 }}>
-                      <FormSelectField
-                        name={`operationalUnits.${index}.assignContacts`}
-                        control={control}
-                        label="Assign Contacts"
-                        options={ASSIGN_CONTACTS_OPTIONS}
-                        placeholder="Select contacts"
-                        error={errors.operationalUnits?.[index]?.assignContacts}
-                      />
-                    </Grid>
-                  </Grid>
+                  {/* Assign Contacts Chips Section (Task 3) */}
+                  {/* Requirements 2.10-2.13, 9.7 */}
+                  <AssignContactsChips
+                    control={control}
+                    operationalUnitIndex={index}
+                    availableContacts={contactOptions}
+                  />
                 </Box>
 
                 {/* Horizontal separator between basic fields and address section (Task 4.1) */}
@@ -744,6 +1167,14 @@ export const OperationalUnitsStep: React.FC<OperationalUnitsStepProps> = ({
                   errors={errors}
                   operationalUnitIndex={index}
                 />
+
+                {/* Suppressions Section (Task 6) */}
+                <SuppressionsSection
+                  control={control}
+                  errors={errors}
+                  operationalUnitIndex={index}
+                  setValue={setValue}
+                />
               </AccordionDetails>
             </Accordion>
           );
@@ -754,17 +1185,23 @@ export const OperationalUnitsStep: React.FC<OperationalUnitsStepProps> = ({
       {/* Requirements 5.2, 5.3 */}
       <Box sx={{ mt: 3 }}>
         <Button
-          variant="text"
+          variant="outlined"
           startIcon={<AddIcon />}
           onClick={handleAddOperationalUnit}
           sx={{
-            color: '#0C55B8',
+            color: '#002677',
             fontSize: '16px',
             fontWeight: 700,
             textTransform: 'none',
-            padding: '8px 16px',
+            padding: '12px 24px',
+            borderRadius: '999px',
+            borderColor: '#002677',
+            borderWidth: '2px',
+            backgroundColor: '#FAF8F2',
             '&:hover': {
-              backgroundColor: 'rgba(12, 85, 184, 0.08)',
+              backgroundColor: '#F5F1E8',
+              borderColor: '#002677',
+              borderWidth: '2px',
             },
           }}
         >

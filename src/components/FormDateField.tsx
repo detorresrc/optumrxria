@@ -4,7 +4,7 @@ import type { Control, FieldError, FieldValues, Path } from 'react-hook-form';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import dayjs, { Dayjs } from 'dayjs';
 
 interface FormDateFieldProps<T extends FieldValues> {
@@ -72,7 +72,7 @@ export const FormDateField = <T extends FieldValues>({
                 disabled={disabled}
                 format="MM-DD-YYYY"
                 slots={{
-                  openPickerIcon: CalendarTodayIcon,
+                  openPickerIcon: CalendarMonthIcon,
                 }}
                 slotProps={{
                   field: {
@@ -91,9 +91,13 @@ export const FormDateField = <T extends FieldValues>({
                         marginLeft: 0,
                       },
                     },
+                    InputProps: {
+                      endAdornment: null,
+                    },
                     sx: {
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '4px',
+                        paddingRight: 0,
                         '& fieldset': {
                           borderWidth: '1px',
                           borderColor: error ? '#C40000' : 'grey.300',
@@ -112,14 +116,24 @@ export const FormDateField = <T extends FieldValues>({
                       },
                       '& .MuiInputAdornment-root': {
                         marginLeft: 0,
+                        height: '100%',
+                        maxHeight: 'none',
                       },
                     },
                   },
                   openPickerButton: {
                     sx: {
-                      color: '#002677',
+                      backgroundColor: '#002677',
+                      borderRadius: '0 4px 4px 0',
+                      height: '100%',
+                      width: '48px',
+                      marginRight: '-14px',
+                      color: '#FFFFFF',
                       '&:hover': {
-                        backgroundColor: 'rgba(0, 38, 119, 0.04)',
+                        backgroundColor: '#001d5c',
+                      },
+                      '& .MuiSvgIcon-root': {
+                        fontSize: '24px',
                       },
                     },
                   },

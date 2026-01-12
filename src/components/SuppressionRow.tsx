@@ -1,5 +1,5 @@
 import { Box, Grid, IconButton, Divider } from '@mui/material';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteIcon from '../assets/delete-icon.svg';
 import type { Control, FieldErrors } from 'react-hook-form';
 import { FormSelectField } from './FormSelectField';
 import { FormDateField } from './FormDateField';
@@ -45,53 +45,57 @@ export const SuppressionRow: React.FC<SuppressionRowProps> = ({
       )}
 
       {/* Suppression Row: Type, Start Date, End Date with Delete Button */}
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-        <Grid container spacing={3} alignItems="flex-start" sx={{ flex: 1 }}>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <FormSelectField
-              name={`suppressions.${index}.suppressionType`}
-              control={control}
-              label="Select Suppression Type"
-              options={SUPPRESSION_TYPE_OPTIONS}
-              placeholder="Select suppression type"
-              error={suppressionErrors?.suppressionType}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <FormDateField
-              name={`suppressions.${index}.suppressionStartDate`}
-              control={control}
-              label="Suppression Start Date"
-              error={suppressionErrors?.suppressionStartDate}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <FormDateField
-              name={`suppressions.${index}.suppressionEndDate`}
-              control={control}
-              label="Suppression End Date"
-              error={suppressionErrors?.suppressionEndDate}
-            />
-          </Grid>
-        </Grid>
-
-        {/* Delete button - aligned to top-right of row (Requirements 5.8) */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
+        {/* Delete Button Box */}
         {showDelete && (
-          <IconButton
-            onClick={onRemove}
-            aria-label="Delete suppression"
-            sx={{
-              color: '#002677',
-              padding: '8px',
-              mt: 0,
-              '&:hover': {
-                backgroundColor: 'rgba(0, 38, 119, 0.04)',
-              },
-            }}
-          >
-            <DeleteOutlineIcon sx={{ fontSize: '24px' }} />
-          </IconButton>
+          <Box sx={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
+            <IconButton
+              onClick={onRemove}
+              aria-label="Delete suppression"
+              disableRipple
+              sx={{
+                padding: 0,
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                },
+              }}
+            >
+              <img src={DeleteIcon} alt="Delete" width={16} height={18} />
+            </IconButton>
+          </Box>
         )}
+
+        {/* Form Fields Box */}
+        <Box sx={{ flex: 1, width: '100%' }}>
+          <Grid container spacing={3} alignItems="flex-start">
+            <Grid size={{ xs: 12, md: 4 }}>
+              <FormSelectField
+                name={`suppressions.${index}.suppressionType`}
+                control={control}
+                label="Select Suppression Type"
+                options={SUPPRESSION_TYPE_OPTIONS}
+                placeholder="Select suppression type"
+                error={suppressionErrors?.suppressionType}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <FormDateField
+                name={`suppressions.${index}.suppressionStartDate`}
+                control={control}
+                label="Suppression Start Date"
+                error={suppressionErrors?.suppressionStartDate}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <FormDateField
+                name={`suppressions.${index}.suppressionEndDate`}
+                control={control}
+                label="Suppression End Date"
+                error={suppressionErrors?.suppressionEndDate}
+              />
+            </Grid>
+          </Grid>
+        </Box>
       </Box>
     </>
   );

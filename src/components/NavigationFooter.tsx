@@ -47,53 +47,31 @@ export const NavigationFooter: React.FC<NavigationFooterProps> = ({
         display: 'flex',
         justifyContent: 'flex-end',
         alignItems: 'center',
-        gap: '10px', // Requirements 9.8: 10px gap between buttons
-        borderTop: '1px solid #CBCCCD', // Requirements 9.7: top border
-        padding: '4px 84px', // Requirements 9.7: 4px vertical, 84px horizontal padding
-        backgroundColor: '#FFFFFF',
+        gap: '10px', // Figma: 10px gap between buttons
+        borderTop: '1px solid #CBCCCD', // Figma: top border
+        padding: '4px 84px', // Figma: 4px vertical, 84px horizontal padding
+        backgroundColor: '#FFFFFF', // Figma: white background
+        minHeight: '77px', // Figma: 77px height
         marginTop: 3,
         marginLeft: '-84px', // Extend to full width
         marginRight: '-84px',
         width: 'calc(100% + 168px)', // Account for negative margins
       }}
     >
-      {/* Go Back button - Requirements 9.2, 9.4 */}
-      {showBack && (
-        <Button
-          variant="outlined"
-          onClick={onBack}
-          sx={{
-            backgroundColor: '#FFFFFF',
-            color: '#323334',
-            borderColor: '#323334', // Requirements 9.4: dark gray border
-            borderRadius: '46px', // Requirements 9.4: 46px border radius
-            padding: '10px 24px',
-            fontSize: '16px',
-            fontWeight: 700,
-            textTransform: 'none',
-            '&:hover': {
-              backgroundColor: '#F5F5F5',
-              borderColor: '#323334',
-            },
-          }}
-        >
-          {backLabel}
-        </Button>
-      )}
-
-      {/* Next button - Requirements 9.1, 9.3 */}
+      {/* Next button - Primary button (Figma: Dark Blue fill) */}
       {showNext && (
         <Button
           variant="contained"
           onClick={onNext}
           disabled={nextDisabled}
           sx={{
-            backgroundColor: '#002677', // Requirements 9.3: dark blue background
-            color: '#FFFFFF',
-            borderRadius: '46px', // Requirements 9.3: 46px border radius
-            padding: '10px 24px',
-            fontSize: '16px',
+            backgroundColor: '#002677', // Figma: Optum/Secondary/Dark Blue
+            color: '#FBF9F4', // Figma: Optum/Secondary/Warm White
+            borderRadius: '46px', // Figma: 46px border radius
+            padding: '10px 24px', // Figma: 10px 24px padding
+            fontSize: '16px', // Figma: Desktop/Body/L/Bold
             fontWeight: 700,
+            lineHeight: 1.4,
             textTransform: 'none',
             boxShadow: 'none',
             '&:hover': {
@@ -107,6 +85,33 @@ export const NavigationFooter: React.FC<NavigationFooterProps> = ({
           }}
         >
           {nextLabel}
+        </Button>
+      )}
+
+      {/* Go Back button - Tertiary button (Figma: White fill with border) */}
+      {showBack && (
+        <Button
+          variant="outlined"
+          onClick={onBack}
+          sx={{
+            backgroundColor: '#FFFFFF', // Figma: Neutrals/White
+            color: '#323334', // Figma: Neutrals/Neutral 80
+            borderColor: '#323334', // Figma: Neutrals/Neutral 80 stroke
+            borderWidth: '1px',
+            borderRadius: '46px', // Figma: 46px border radius
+            padding: '10px 24px', // Figma: 10px 24px padding
+            fontSize: '16px', // Figma: Desktop/Body/L/Bold
+            fontWeight: 700,
+            lineHeight: 1.4,
+            textTransform: 'none',
+            height: '42px', // Figma: fixed height 42px
+            '&:hover': {
+              backgroundColor: '#F5F5F5',
+              borderColor: '#323334',
+            },
+          }}
+        >
+          {backLabel}
         </Button>
       )}
     </Box>

@@ -57,40 +57,69 @@ export const operationalUnitAddressSchema = z.object({
   zip: z.string().min(1, 'Required field'),
 });
 
+// Suppression Entry schema for Operational Units (Step 4)
+// Requirements: 6.3-6.5
+export const operationalUnitSuppressionEntrySchema = z.object({
+  suppressionType: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+});
+
+export type OperationalUnitSuppressionEntryData = z.infer<typeof operationalUnitSuppressionEntrySchema>;
+
 // Billing Attributes Override schema for Operational Units (optional)
-// Requirements: 4.1-4.5 - mirrors contract billing attributes but all optional
+// Requirements: 4.6-4.17, 5.1, 5.3-5.5
 export const billingAttributesOverrideSchema = z.object({
-  invoiceBreakout: z.string().optional(),
+  // Invoice settings (Requirements 4.6-4.13)
   claimInvoiceFrequency: z.string().optional(),
   feeInvoiceFrequency: z.string().optional(),
   invoiceAggregationLevel: z.string().optional(),
   invoiceType: z.string().optional(),
+  invoicingClaimQuantityCounts: z.string().optional(),
   deliveryOption: z.string().optional(),
   supportDocumentVersion: z.string().optional(),
+  invoiceStaticData: z.string().optional(),
+  // Fee Invoice Payment Terms (Requirements 4.14-4.15)
+  feeInvoicePaymentTerm: z.string().optional(),
+  feeInvoicePaymentTermDayType: z.string().optional(),
+  // Claim Invoice Payment Terms (Requirements 4.16-4.17)
+  claimInvoicePaymentTerm: z.string().optional(),
+  claimInvoicePaymentTermDayType: z.string().optional(),
+  // Payment Method (Requirements 5.1, 5.3-5.5)
+  paymentMethod: z.string().optional(),
+  bankAccountType: z.string().optional(),
+  routingNumber: z.string().optional(),
+  accountNumber: z.string().optional(),
 }).optional();
 
 // Operational Unit schema
-// Requirements: 2.1-2.10, 6.1-6.6
+// Requirements: 2.1-2.10, 8.2-8.5
 export const operationalUnitSchema = z.object({
-  // Required fields (Requirements 2.1, 2.2, 2.4, 2.9, 6.2-6.5)
+  // Required fields (Requirements 2.1, 2.2, 2.3, 2.5, 8.2-8.5)
   name: z.string().min(1, 'Required field'),
   id: z.string().min(1, 'Required field'),
+  lobNumeric: z.string().min(1, 'Required field'),
   lineOfBusiness: z.string().min(1, 'Required field'),
-  runOffPeriod: z.string().min(1, 'Required field'),
 
-  // Optional fields (Requirements 2.3, 2.5, 2.6, 2.7, 2.8, 2.10)
+  // Optional fields (Requirements 2.4, 2.6-2.10)
   marketSegment: z.string().optional(),
   mrPlanType: z.string().optional(),
   mrGroupIndividual: z.string().optional(),
   mrClassification: z.string().optional(),
   passThroughTraditional: z.string().optional(),
-  assignContacts: z.string().optional(),
+  
+  // Assigned contacts as string array (Requirements 2.10-2.13)
+  assignedContacts: z.array(z.string()).optional(),
 
-  // Address array (Requirements 3, 6.6)
+  // Address array (Requirements 3, 8.6)
   addresses: z.array(operationalUnitAddressSchema).min(1, 'At least one address is required'),
 
-  // Billing attributes override (optional, Requirements 4.1-4.5)
+  // Billing attributes override (optional, Requirements 4.6-4.17, 5.1, 5.3-5.5)
   billingAttributesOverride: billingAttributesOverrideSchema,
+
+  // Suppressions (Requirements 6.1-6.11)
+  addSuppressions: z.boolean().optional(),
+  suppressions: z.array(operationalUnitSuppressionEntrySchema).optional(),
 });
 
 // Main AddClient schema
@@ -175,21 +204,31 @@ export const defaultOperationalUnitAddressData: OperationalUnitAddressData = {
   zip: '',
 };
 
+// Default values for Operational Unit Suppression Entry (Step 4)
+// Requirements: 6.3-6.5
+export const defaultOperationalUnitSuppressionEntryData: OperationalUnitSuppressionEntryData = {
+  suppressionType: '',
+  startDate: '',
+  endDate: '',
+};
+
 // Default values for Operational Unit (Step 4)
-// Requirements: 5.1
+// Requirements: 7.1
 export const defaultOperationalUnitData: OperationalUnitData = {
   name: '',
   id: '',
+  lobNumeric: '',
   lineOfBusiness: '',
-  runOffPeriod: '',
   marketSegment: '',
   mrPlanType: '',
   mrGroupIndividual: '',
   mrClassification: '',
   passThroughTraditional: '',
-  assignContacts: '',
+  assignedContacts: [],
   addresses: [defaultOperationalUnitAddressData],
   billingAttributesOverride: undefined,
+  addSuppressions: false,
+  suppressions: [],
 };
 
 export const defaultFormData: AddClientFormData = {

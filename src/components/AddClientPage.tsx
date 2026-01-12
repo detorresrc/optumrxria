@@ -12,9 +12,8 @@ import {
   DialogActions,
 } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import ChevLeftIcon from '../assets/chev-left.svg';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AddClientStepper } from './AddClientStepper';
@@ -384,16 +383,11 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
               gap: 1.5,
             }}
           >
-            <PersonOutlineIcon
-              sx={{
-                fontSize: 28,
-                color: '#002677',
-              }}
-            />
+            <img src={ChevLeftIcon} alt="Back" width={12} height={19} />
             <Typography
               variant="h1"
               sx={{
-                fontSize: '23px',
+                fontSize: '29px',
                 fontWeight: 700,
                 color: '#323334',
                 lineHeight: 1.2,
@@ -559,6 +553,7 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
             <OperationalUnitsStep
               control={control}
               errors={errors}
+              setValue={setValue}
             />
           )}
           {currentStep === 4 && (
@@ -573,74 +568,24 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
 
           {/* Step Navigation Buttons */}
           {/* Show buttons on steps 0-3 only. Confirmation step (4) has buttons in title bar */}
-          {/* Step 1 (Contract Details) uses NavigationFooter component per Requirements 9.1-9.8 */}
-          {currentStep === 1 && (
+          {/* Steps 0-3 use NavigationFooter component */}
+          {/* Step 0 (Client Details) shows only Next button */}
+          {currentStep === 0 && (
+            <NavigationFooter
+              onNext={handleNext}
+              onBack={handleGoBack}
+              showBack={false}
+              showNext={true}
+            />
+          )}
+          {/* Steps 1-3 (Contract Details, Contacts & Access, Operational Units) show both buttons */}
+          {currentStep >= 1 && currentStep <= 3 && (
             <NavigationFooter
               onNext={handleNext}
               onBack={handleGoBack}
               showBack={true}
               showNext={true}
             />
-          )}
-          {/* Other steps (0, 2, 3) use the original button layout */}
-          {currentStep < 4 && currentStep !== 1 && (currentStep > 0 || currentStep < STEP_LABELS.length - 1) && (
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: currentStep === 0 ? 'flex-end' : 'space-between',
-                alignItems: 'center',
-                mt: 3,
-              }}
-            >
-              {/* Go Back button - hidden on Client Details (step 0) */}
-              {currentStep > 0 && (
-                <Button
-                  variant="outlined"
-                  startIcon={<ArrowBackIcon />}
-                  onClick={handleGoBack}
-                  sx={{
-                    backgroundColor: '#FFFFFF',
-                    color: '#002677',
-                    borderColor: '#002677',
-                    borderRadius: '46px',
-                    padding: '10px 24px',
-                    fontSize: '16px',
-                    fontWeight: 700,
-                    textTransform: 'none',
-                    '&:hover': {
-                      backgroundColor: '#F5F5F5',
-                      borderColor: '#002677',
-                    },
-                  }}
-                >
-                  Go Back
-                </Button>
-              )}
-              {/* Next button - hidden on Confirmation (last step) */}
-              {currentStep < STEP_LABELS.length - 1 && (
-                <Button
-                  variant="contained"
-                  endIcon={<ArrowForwardIcon />}
-                  onClick={handleNext}
-                  sx={{
-                    backgroundColor: '#002677',
-                    color: '#FFFFFF',
-                    borderRadius: '46px',
-                    padding: '10px 24px',
-                    fontSize: '16px',
-                    fontWeight: 700,
-                    textTransform: 'none',
-                    boxShadow: 'none',
-                    '&:hover': {
-                      backgroundColor: '#001a5c',
-                      boxShadow: 'none',
-                    },
-                  }}
-                >
-                  Next
-                </Button>
-              )}
-            </Box>
           )}
 
           {/* Confirmation Step Navigation - Go Back button only */}
