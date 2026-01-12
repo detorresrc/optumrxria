@@ -8,8 +8,7 @@ General Rules:
 
 
 Figma/Design Rules:
-- Please cache the Figma response and save it to /figma-cache/${fileKey}-${nodeId} to avoid unnecessary requests to the Figma API.
-- Use the Figma MCP(if cache is not available) to fetch and reference design specifications before implementing.
+- Use the Figma MCP to fetch and reference design specifications before implementing.
 - Do not create custom designs. If the Figma MCP fails or is unavailable, inform the user and request clarification rather than proceeding with alternative designs.
 - Please ask sample screenshot of the page for reference.
 - Design the components base on figma design and screenshot

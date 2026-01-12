@@ -31,6 +31,16 @@ export const contactSchema = z.object({
   sendEmailNotification: z.enum(['yes', 'no']).default('yes'),
 });
 
+// Suppression Entry schema for Contract Details Step (Step 2)
+// Requirements: 5.4-5.6
+export const suppressionEntrySchema = z.object({
+  suppressionType: z.string().optional(),
+  suppressionStartDate: z.string().optional(),
+  suppressionEndDate: z.string().optional(),
+});
+
+export type SuppressionEntryData = z.infer<typeof suppressionEntrySchema>;
+
 // Contacts & Access Step Schema (Step 3)
 export const contactsAccessSchema = z.object({
   contacts: z.array(contactSchema).min(1, 'At least one contact is required'),
@@ -141,6 +151,14 @@ export const defaultContactData: Contact = {
   sendEmailNotification: 'yes',
 };
 
+// Default values for Suppression Entry (Step 2)
+// Requirements: 5.4-5.6
+export const defaultSuppressionEntryData: SuppressionEntryData = {
+  suppressionType: '',
+  suppressionStartDate: '',
+  suppressionEndDate: '',
+};
+
 // Default values for Contacts & Access Step
 export const defaultContactsAccessData: ContactsAccessFormData = {
   contacts: [defaultContactData],
@@ -239,7 +257,7 @@ export const contractDetailsStepSchema = z.object({
   runOffEffectiveDate: z.string().optional(),
   source: z.string().min(1, 'Required field'),
 
-  // Billing Attributes (Requirements 3.1-3.13)
+  // Billing Attributes (Requirements 3.1-3.15)
   invoiceBreakout: z.string().min(1, 'Required field'),
   claimInvoiceFrequency: z.string().min(1, 'Required field'),
   feeInvoiceFrequency: z.string().min(1, 'Required field'),
@@ -248,8 +266,11 @@ export const contractDetailsStepSchema = z.object({
   invoicingClaimQuantityCounts: z.string().optional(),
   deliveryOption: z.string().min(1, 'Required field'),
   supportDocumentVersion: z.string().min(1, 'Required field'),
-  claimInvoicePaymentTerm: z.string().optional(),
-  feeInvoicePaymentTerm: z.string().optional(),
+  invoiceStaticData: z.string().optional(), // Requirements 3.11
+  feeInvoicePaymentTerm: z.string().optional(), // Requirements 3.12 - dropdown
+  feeInvoicePaymentTermDayType: z.string().optional(), // Requirements 3.13
+  claimInvoicePaymentTerm: z.string().optional(), // Requirements 3.14 - dropdown
+  claimInvoicePaymentTermDayType: z.string().optional(), // Requirements 3.15
   paymentMethod: z.string().optional(),
 
   // Autopay Information (Requirements 4.5-4.8) - conditionally required
@@ -258,9 +279,9 @@ export const contractDetailsStepSchema = z.object({
   accountNumber: z.string().optional(),
   accountHolderName: z.string().optional(),
 
-  // Radio Options (Requirements 5.1-5.3)
-  suppressRejectedClaims: z.enum(['yes', 'no']).default('yes'),
-  suppressNetZeroClaims: z.enum(['yes', 'no']).default('yes'),
+  // Suppressions (Requirements 5.1-5.6)
+  addSuppressions: z.enum(['yes', 'no']).default('no'),
+  suppressions: z.array(suppressionEntrySchema).default([]),
 });
 
 // Contract Details Step Schema with conditional autopay validation (Requirements 6.5)
@@ -326,8 +347,11 @@ export const defaultContractDetailsStepData: ContractDetailsStepFormData = {
   invoicingClaimQuantityCounts: '',
   deliveryOption: '',
   supportDocumentVersion: '',
-  claimInvoicePaymentTerm: '',
+  invoiceStaticData: '',
   feeInvoicePaymentTerm: '',
+  feeInvoicePaymentTermDayType: '',
+  claimInvoicePaymentTerm: '',
+  claimInvoicePaymentTermDayType: '',
   paymentMethod: '',
 
   // Autopay Information
@@ -336,9 +360,9 @@ export const defaultContractDetailsStepData: ContractDetailsStepFormData = {
   accountNumber: '',
   accountHolderName: '',
 
-  // Radio Options
-  suppressRejectedClaims: 'yes',
-  suppressNetZeroClaims: 'yes',
+  // Suppressions
+  addSuppressions: 'no',
+  suppressions: [],
 };
 
 // Combined Add Client Form Schema (Steps 1 & 2)
@@ -374,8 +398,11 @@ export const addClientCombinedSchema = z.object({
   invoicingClaimQuantityCounts: z.string().optional(),
   deliveryOption: z.string().min(1, 'Required field'),
   supportDocumentVersion: z.string().min(1, 'Required field'),
-  claimInvoicePaymentTerm: z.string().optional(),
-  feeInvoicePaymentTerm: z.string().optional(),
+  invoiceStaticData: z.string().optional(), // Requirements 3.11
+  feeInvoicePaymentTerm: z.string().optional(), // Requirements 3.12 - dropdown
+  feeInvoicePaymentTermDayType: z.string().optional(), // Requirements 3.13
+  claimInvoicePaymentTerm: z.string().optional(), // Requirements 3.14 - dropdown
+  claimInvoicePaymentTermDayType: z.string().optional(), // Requirements 3.15
   paymentMethod: z.string().optional(),
 
   // Step 2: Contract Details - Autopay Information (conditionally required)
@@ -384,9 +411,9 @@ export const addClientCombinedSchema = z.object({
   accountNumber: z.string().optional(),
   accountHolderName: z.string().optional(),
 
-  // Step 2: Contract Details - Radio Options
-  suppressRejectedClaims: z.enum(['yes', 'no']).default('yes'),
-  suppressNetZeroClaims: z.enum(['yes', 'no']).default('yes'),
+  // Step 2: Contract Details - Suppressions (Requirements 5.1-5.6)
+  addSuppressions: z.enum(['yes', 'no']).default('no'),
+  suppressions: z.array(suppressionEntrySchema).default([]),
 
   // Step 3: Contacts & Access
   contacts: z.array(contactSchema).min(1, 'At least one contact is required'),
@@ -469,8 +496,11 @@ export const defaultAddClientCombinedData: AddClientCombinedFormData = {
   invoicingClaimQuantityCounts: '',
   deliveryOption: '',
   supportDocumentVersion: '',
-  claimInvoicePaymentTerm: '',
+  invoiceStaticData: '',
   feeInvoicePaymentTerm: '',
+  feeInvoicePaymentTermDayType: '',
+  claimInvoicePaymentTerm: '',
+  claimInvoicePaymentTermDayType: '',
   paymentMethod: '',
 
   // Step 2: Contract Details - Autopay Information
@@ -479,9 +509,9 @@ export const defaultAddClientCombinedData: AddClientCombinedFormData = {
   accountNumber: '',
   accountHolderName: '',
 
-  // Step 2: Contract Details - Radio Options
-  suppressRejectedClaims: 'yes',
-  suppressNetZeroClaims: 'yes',
+  // Step 2: Contract Details - Suppressions
+  addSuppressions: 'no',
+  suppressions: [],
 
   // Step 3: Contacts & Access
   contacts: [{

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Grid, IconButton, Link, Typography } from '@mui/material';
+import { Box, Grid, IconButton, Link } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AddIcon from '@mui/icons-material/Add';
 import { ReadOnlyField } from './ReadOnlyField';

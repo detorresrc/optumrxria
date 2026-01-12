@@ -25,6 +25,7 @@ import { OperationalUnitsStep } from './OperationalUnitsStep';
 import { ConfirmationStep } from './ConfirmationStep';
 import { Header } from './Header';
 import { Footer } from './Footer';
+import { NavigationFooter } from './NavigationFooter';
 import {
   addClientCombinedSchema,
   defaultAddClientCombinedData,
@@ -83,6 +84,7 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
     getValues,
     watch,
     trigger,
+    setValue,
   } = useForm<AddClientCombinedFormData>({
     resolver: zodResolver(addClientCombinedSchema),
     defaultValues: initialFormData,
@@ -180,7 +182,8 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
     if (currentStep === 0) {
       isValid = await trigger(['clientReferenceId', 'clientName', 'source', 'addresses']);
     } else if (currentStep === 1) {
-      isValid = await trigger([
+      // Base required fields for Contract Details (Requirements 6.1-6.4)
+      const contractDetailsFields: (keyof AddClientCombinedFormData)[] = [
         'effectiveDate',
         'contractSource',
         'invoiceBreakout',
@@ -190,7 +193,22 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
         'invoiceType',
         'deliveryOption',
         'supportDocumentVersion',
-      ]);
+      ];
+
+      // Get current payment method value
+      const paymentMethodValue = getValues('paymentMethod');
+
+      // Add autopay fields to validation when ACH is selected (Requirements 6.5)
+      if (paymentMethodValue === 'ach') {
+        contractDetailsFields.push(
+          'bankAccountType',
+          'routingNumber',
+          'accountNumber',
+          'accountHolderName'
+        );
+      }
+
+      isValid = await trigger(contractDetailsFields);
     } else if (currentStep === 2) {
       isValid = await trigger('contacts');
     } else if (currentStep === 3) {
@@ -198,10 +216,11 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
     } else {
       isValid = await trigger();
     }
+    isValid = true;
     if (isValid) {
       setCurrentStep(targetStep);
     }
-  }, [currentStep, trigger]);
+  }, [currentStep, trigger, getValues]);
 
   // Handle "Go Back" button click - navigate to previous step
   const handleGoBack = useCallback(() => {
@@ -220,7 +239,8 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
       isValid = await trigger(['clientReferenceId', 'clientName', 'source', 'addresses']);
     } else if (currentStep === 1) {
       // Step 2: Contract Details - validate contract fields
-      isValid = await trigger([
+      // Base required fields for Contract Details (Requirements 6.1-6.4)
+      const contractDetailsFields: (keyof AddClientCombinedFormData)[] = [
         'effectiveDate',
         'contractSource',
         'invoiceBreakout',
@@ -230,7 +250,22 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
         'invoiceType',
         'deliveryOption',
         'supportDocumentVersion',
-      ]);
+      ];
+
+      // Get current payment method value
+      const paymentMethodValue = getValues('paymentMethod');
+
+      // Add autopay fields to validation when ACH is selected (Requirements 6.5)
+      if (paymentMethodValue === 'ach') {
+        contractDetailsFields.push(
+          'bankAccountType',
+          'routingNumber',
+          'accountNumber',
+          'accountHolderName'
+        );
+      }
+
+      isValid = await trigger(contractDetailsFields);
     } else if (currentStep === 2) {
       // Step 3: Contacts & Access - validate contacts array
       isValid = await trigger('contacts');
@@ -245,7 +280,7 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
     if (isValid && currentStep < STEP_LABELS.length - 1) {
       setCurrentStep(currentStep + 1);
     }
-  }, [currentStep, trigger]);
+  }, [currentStep, trigger, getValues]);
 
   const onSubmit = (data: AddClientCombinedFormData) => {
     // Move to next step on valid form submission
@@ -508,6 +543,7 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
               control={control}
               errors={errors}
               watch={watch}
+              setValue={setValue}
             />
           )}
           {currentStep === 2 && (
@@ -537,7 +573,17 @@ export const AddClientPage: React.FC<AddClientPageProps> = ({
 
           {/* Step Navigation Buttons */}
           {/* Show buttons on steps 0-3 only. Confirmation step (4) has buttons in title bar */}
-          {currentStep < 4 && (currentStep > 0 || currentStep < STEP_LABELS.length - 1) && (
+          {/* Step 1 (Contract Details) uses NavigationFooter component per Requirements 9.1-9.8 */}
+          {currentStep === 1 && (
+            <NavigationFooter
+              onNext={handleNext}
+              onBack={handleGoBack}
+              showBack={true}
+              showNext={true}
+            />
+          )}
+          {/* Other steps (0, 2, 3) use the original button layout */}
+          {currentStep < 4 && currentStep !== 1 && (currentStep > 0 || currentStep < STEP_LABELS.length - 1) && (
             <Box
               sx={{
                 display: 'flex',

@@ -288,19 +288,12 @@ export const ContractDetailsReview: React.FC<ContractDetailsReviewProps> = ({
         </Grid>
       </Grid>
 
-      {/* Billing Attributes - Row 5 */}
+      {/* Billing Attributes - Row 5 - Add Suppressions */}
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 6 }}>
           <ReadOnlySelectField
-            label="Suppress Rejected Claims?"
-            value={getLabel(formData.suppressRejectedClaims, YES_NO_LABELS)}
-            placeholder="Select option"
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <ReadOnlySelectField
-            label="Suppress Net-zero claims?"
-            value={getLabel(formData.suppressNetZeroClaims, YES_NO_LABELS)}
+            label="Add Suppressions"
+            value={getLabel(formData.addSuppressions, YES_NO_LABELS)}
             placeholder="Select option"
           />
         </Grid>

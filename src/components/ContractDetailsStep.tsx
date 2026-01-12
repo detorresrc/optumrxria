@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Accordion,
   AccordionSummary,
@@ -6,19 +6,25 @@ import {
   Box,
   Typography,
   Grid,
+  Button,
+  Switch,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import type { Control, FieldErrors, UseFormWatch } from 'react-hook-form';
+import AddIcon from '@mui/icons-material/Add';
+import type { Control, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form';
+import { useFieldArray } from 'react-hook-form';
 import { FormTextField } from './FormTextField';
 import { FormSelectField } from './FormSelectField';
 import { FormDateField } from './FormDateField';
-import { FormRadioGroup } from './FormRadioGroup';
+import { SuppressionRow } from './SuppressionRow';
 import type { AddClientCombinedFormData } from '../schemas/addClientSchema';
+import { defaultSuppressionEntryData } from '../schemas/addClientSchema';
 
 interface ContractDetailsStepProps {
   control: Control<AddClientCombinedFormData>;
   errors: FieldErrors<AddClientCombinedFormData>;
   watch: UseFormWatch<AddClientCombinedFormData>;
+  setValue: UseFormSetValue<AddClientCombinedFormData>;
 }
 
 // Dropdown options per design document
@@ -88,9 +94,19 @@ const CLAIM_QUANTITY_OPTIONS = [
   { value: 'both', label: 'Both' },
 ];
 
-const RADIO_OPTIONS = [
-  { value: 'yes', label: 'Yes' },
-  { value: 'no', label: 'No' },
+// Payment Term Days options (Requirements 3.12, 3.14)
+const PAYMENT_TERM_DAYS_OPTIONS = [
+  { value: '15', label: '15' },
+  { value: '30', label: '30' },
+  { value: '45', label: '45' },
+  { value: '60', label: '60' },
+  { value: '90', label: '90' },
+];
+
+// Day Type options (Requirements 3.13, 3.15)
+const DAY_TYPE_OPTIONS = [
+  { value: 'calendar', label: 'Calendar Days' },
+  { value: 'business', label: 'Business Days' },
 ];
 
 
@@ -98,13 +114,38 @@ export const ContractDetailsStep: React.FC<ContractDetailsStepProps> = ({
   control,
   errors,
   watch,
+  setValue,
 }) => {
   const [expanded, setExpanded] = useState(true);
   const paymentMethod = watch('paymentMethod');
+  const addSuppressions = watch('addSuppressions');
+
+  // useFieldArray for dynamic suppressions management (Requirements 5.7, 5.9)
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'suppressions',
+  });
 
   const handleAccordionChange = (_event: React.SyntheticEvent, isExpanded: boolean) => {
     setExpanded(isExpanded);
   };
+
+  // Add a new suppression row (Requirements 5.7)
+  const handleAddSuppression = () => {
+    append(defaultSuppressionEntryData);
+  };
+
+  // Remove a suppression row (Requirements 5.9)
+  const handleRemoveSuppression = (index: number) => {
+    remove(index);
+  };
+
+  // Auto-add first suppression row when "Yes" is selected and no rows exist
+  useEffect(() => {
+    if (addSuppressions === 'yes' && fields.length === 0) {
+      append(defaultSuppressionEntryData);
+    }
+  }, [addSuppressions, fields.length, append]);
 
   return (
     <Accordion
@@ -166,7 +207,7 @@ export const ContractDetailsStep: React.FC<ContractDetailsStepProps> = ({
       </AccordionSummary>
       <AccordionDetails
         sx={{
-          padding: '0 24px 24px 24px',
+          padding: '30px 24px 24px 24px',
         }}
       >
         {/* Contract Information Fields - Three Column Layout */}
@@ -316,7 +357,7 @@ export const ContractDetailsStep: React.FC<ContractDetailsStepProps> = ({
               mb: 3,
             }}
           >
-            Complete the fields below.
+            You may override the billing attributes outlined under the contract details section here.
           </Typography>
 
           {/* Billing Row 1: Invoice Breakout, Claim Invoice Frequency, Fee Invoice Frequency */}
@@ -393,7 +434,7 @@ export const ContractDetailsStep: React.FC<ContractDetailsStepProps> = ({
             </Grid>
           </Grid>
 
-          {/* Billing Row 3: Delivery Option, Support Document Version, Claim Invoice Payment Term */}
+          {/* Billing Row 3: Delivery Option, Support Document Version, Invoice Static Data */}
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid size={{ xs: 12, md: 4 }}>
               <FormSelectField
@@ -419,26 +460,65 @@ export const ContractDetailsStep: React.FC<ContractDetailsStepProps> = ({
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <FormTextField
-                name="claimInvoicePaymentTerm"
+                name="invoiceStaticData"
                 control={control}
-                label="Claim Invoice Payment Term"
-                placeholder="Enter payment term"
-                error={errors.claimInvoicePaymentTerm}
+                label="Invoice Static Data"
+                placeholder="Enter invoice static data"
+                error={errors.invoiceStaticData}
               />
             </Grid>
           </Grid>
 
-          {/* Billing Row 4: Fee Invoice Payment Term, Payment Method */}
+          {/* Billing Row 4: Fee Invoice Payment Term, Fee Invoice Payment Term Day Type */}
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid size={{ xs: 12, md: 4 }}>
-              <FormTextField
+              <FormSelectField
                 name="feeInvoicePaymentTerm"
                 control={control}
                 label="Fee Invoice Payment Term"
-                placeholder="Enter payment term"
+                options={PAYMENT_TERM_DAYS_OPTIONS}
+                placeholder="Select No. of days"
                 error={errors.feeInvoicePaymentTerm}
               />
             </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <FormSelectField
+                name="feeInvoicePaymentTermDayType"
+                control={control}
+                label="Fee Invoice Payment Term Day Type"
+                options={DAY_TYPE_OPTIONS}
+                placeholder="Select day type"
+                error={errors.feeInvoicePaymentTermDayType}
+              />
+            </Grid>
+          </Grid>
+
+          {/* Billing Row 5: Claim Invoice Payment Term, Claim Invoice Payment Term Day Type */}
+          <Grid container spacing={3} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <FormSelectField
+                name="claimInvoicePaymentTerm"
+                control={control}
+                label="Claim Invoice Payment Term"
+                options={PAYMENT_TERM_DAYS_OPTIONS}
+                placeholder="Select No. of days"
+                error={errors.claimInvoicePaymentTerm}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <FormSelectField
+                name="claimInvoicePaymentTermDayType"
+                control={control}
+                label="Claim Invoice Payment Term Day Type"
+                options={DAY_TYPE_OPTIONS}
+                placeholder="Select day type"
+                error={errors.claimInvoicePaymentTermDayType}
+              />
+            </Grid>
+          </Grid>
+
+          {/* Payment Method - Separate row before ACH fields (Requirements 4.1-4.7) */}
+          <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid size={{ xs: 12, md: 4 }}>
               <FormSelectField
                 name="paymentMethod"
@@ -451,102 +531,182 @@ export const ContractDetailsStep: React.FC<ContractDetailsStepProps> = ({
             </Grid>
           </Grid>
 
-          {/* Radio Button Groups */}
+          {/* Autopay Information Section - Conditional based on Payment Method (Requirements 4.1-4.7) */}
+          {paymentMethod === 'ach' && (
+            <>
+              {/* Horizontal divider between Payment Method and ACH fields */}
+              <Box
+                sx={{
+                  borderTop: '1px solid #CBCCCD',
+                  my: 3,
+                }}
+              />
+
+              {/* ACH Row 1: Bank Account Type, Routing Number, Account Number (three-column layout) */}
+              <Grid container spacing={3} sx={{ mb: 3 }}>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <FormSelectField
+                    name="bankAccountType"
+                    control={control}
+                    label="Bank Account Type"
+                    required
+                    options={BANK_ACCOUNT_TYPE_OPTIONS}
+                    placeholder="Select bank account type"
+                    error={errors.bankAccountType}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <FormTextField
+                    name="routingNumber"
+                    control={control}
+                    label="Routing Number"
+                    required
+                    placeholder="Enter routing number"
+                    error={errors.routingNumber}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <FormTextField
+                    name="accountNumber"
+                    control={control}
+                    label="Account Number"
+                    required
+                    placeholder="Enter account number"
+                    error={errors.accountNumber}
+                  />
+                </Grid>
+              </Grid>
+
+              {/* ACH Row 2: Account Holder Name (second row) */}
+              <Grid container spacing={3} sx={{ mb: 3 }}>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <FormTextField
+                    name="accountHolderName"
+                    control={control}
+                    label="Account Holder Name"
+                    required
+                    placeholder="Enter account holder name"
+                    error={errors.accountHolderName}
+                  />
+                </Grid>
+              </Grid>
+            </>
+          )}
+
+          {/* Add Suppressions Toggle Switch */}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <FormRadioGroup
-              name="suppressRejectedClaims"
-              control={control}
-              label="Suppress Rejected Claims?"
-              options={RADIO_OPTIONS}
-              error={errors.suppressRejectedClaims}
-            />
-            <FormRadioGroup
-              name="suppressNetZeroClaims"
-              control={control}
-              label="Suppress Net-zero claims?"
-              options={RADIO_OPTIONS}
-              error={errors.suppressNetZeroClaims}
-            />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Typography
+                sx={{
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  color: '#323334',
+                }}
+              >
+                Add Suppressions
+              </Typography>
+              <Switch
+                checked={addSuppressions === 'yes'}
+                onChange={(e) => {
+                  setValue('addSuppressions', e.target.checked ? 'yes' : 'no');
+                }}
+                sx={{
+                  width: 52,
+                  height: 32,
+                  padding: 0,
+                  '& .MuiSwitch-switchBase': {
+                    padding: 0,
+                    margin: '4px',
+                    transitionDuration: '300ms',
+                    '&.Mui-checked': {
+                      transform: 'translateX(20px)',
+                      color: '#fff',
+                      '& + .MuiSwitch-track': {
+                        backgroundColor: '#196ECF',
+                        opacity: 1,
+                        border: 0,
+                      },
+                      '& .MuiSwitch-thumb': {
+                        backgroundColor: '#fff',
+                        '&:before': {
+                          content: '"✓"',
+                          position: 'absolute',
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '14px',
+                          fontWeight: 700,
+                          color: '#196ECF',
+                        },
+                      },
+                    },
+                  },
+                  '& .MuiSwitch-thumb': {
+                    boxSizing: 'border-box',
+                    width: 24,
+                    height: 24,
+                    backgroundColor: '#fff',
+                    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
+                  },
+                  '& .MuiSwitch-track': {
+                    borderRadius: 16,
+                    backgroundColor: '#CBCCCD',
+                    opacity: 1,
+                  },
+                }}
+              />
+              <Typography
+                sx={{
+                  fontSize: '16px',
+                  fontWeight: 400,
+                  color: '#4B4D4F',
+                }}
+              >
+                Yes
+              </Typography>
+            </Box>
+
+            {/* Suppression fields - shown only when "Yes" is selected (Requirements 5.2, 5.3) */}
+            {addSuppressions === 'yes' && (
+              <Box sx={{ mt: 2 }}>
+                {/* Render suppression rows */}
+                {fields.map((field, index) => (
+                  <SuppressionRow
+                    key={field.id}
+                    index={index}
+                    control={control}
+                    errors={errors}
+                    onRemove={() => handleRemoveSuppression(index)}
+                    showDelete={true}
+                    showDivider={index > 0}
+                  />
+                ))}
+
+                {/* Add another suppression button (Requirements 5.10) */}
+                <Button
+                  onClick={handleAddSuppression}
+                  startIcon={<AddIcon />}
+                  sx={{
+                    mt: 3,
+                    color: '#0C55B8',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    textTransform: 'none',
+                    padding: '8px 0',
+                    '&:hover': {
+                      backgroundColor: 'transparent',
+                      textDecoration: 'underline',
+                    },
+                  }}
+                >
+                  Add another suppression
+                </Button>
+              </Box>
+            )}
           </Box>
         </Box>
-
-
-        {/* Autopay Information Section - Conditional based on Payment Method */}
-        {paymentMethod === 'ach' && (
-          <Box
-            sx={{
-              border: '1px solid #CBCCCD',
-              borderRadius: '12px',
-              p: 3,
-            }}
-          >
-            <Typography
-              sx={{
-                fontSize: '20px',
-                fontWeight: 700,
-                color: '#000000',
-                mb: 0.5,
-              }}
-            >
-              Autopay Information
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: '16px',
-                fontWeight: 400,
-                color: '#4B4D4F',
-                mb: 3,
-              }}
-            >
-              You have chosen ACH as your payment method. Please complete the fields below.
-            </Typography>
-
-            {/* Autopay Row: Bank Account Type, Routing Number, Account Number, Account Holder Name */}
-            <Grid container spacing={3}>
-              <Grid size={{ xs: 12, md: 3 }}>
-                <FormSelectField
-                  name="bankAccountType"
-                  control={control}
-                  label="Bank Account Type"
-                  required
-                  options={BANK_ACCOUNT_TYPE_OPTIONS}
-                  placeholder="Select account type"
-                  error={errors.bankAccountType}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, md: 3 }}>
-                <FormTextField
-                  name="routingNumber"
-                  control={control}
-                  label="Routing Number"
-                  required
-                  placeholder="Enter routing number"
-                  error={errors.routingNumber}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, md: 3 }}>
-                <FormTextField
-                  name="accountNumber"
-                  control={control}
-                  label="Account Number"
-                  required
-                  placeholder="Enter account number"
-                  error={errors.accountNumber}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, md: 3 }}>
-                <FormTextField
-                  name="accountHolderName"
-                  control={control}
-                  label="Account Holder Name"
-                  required
-                  placeholder="Enter account holder name"
-                  error={errors.accountHolderName}
-                />
-              </Grid>
-            </Grid>
-          </Box>
-        )}
       </AccordionDetails>
     </Accordion>
   );

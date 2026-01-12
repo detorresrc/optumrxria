@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Contract Details Step is the second step in the Add Client multi-step wizard. It captures contract information, billing configuration, and optional autopay details. The component follows the existing accordion pattern established by ClientDetailsStep and integrates with the react-hook-form based form management system.
+The Contract Details Step is the second step in the Add Client multi-step wizard. It captures contract information, billing configuration, payment details, suppression settings, and optional autopay details. The component follows the existing accordion pattern established by ClientDetailsStep and integrates with the react-hook-form based form management system.
 
 ## Architecture
 
@@ -14,11 +14,14 @@ graph TD
     C --> E[ContractDetailsStep - Step 2]
     E --> F[Contract Info Fields]
     E --> G[BillingAttributesSection]
-    E --> H[AutopayInfoSection]
-    G --> I[Invoice Configuration]
-    G --> J[Payment Configuration]
-    G --> K[Radio Options]
-    H --> L[Bank Account Fields]
+    G --> H[Invoice Configuration]
+    G --> I[Payment Term Fields]
+    G --> J[Payment Method]
+    G --> K[AutopayInfoSection]
+    G --> L[SuppressionsSection]
+    K --> M[Bank Account Fields]
+    L --> N[Suppression Rows]
+    A --> O[NavigationFooter]
 ```
 
 The Contract Details Step follows the same architectural pattern as the existing Client Details Step:
@@ -26,6 +29,7 @@ The Contract Details Step follows the same architectural pattern as the existing
 - react-hook-form for form state management
 - Zod schema for validation
 - MUI Grid for responsive layout
+- Dynamic field arrays for suppressions
 
 ## Components and Interfaces
 
@@ -33,9 +37,9 @@ The Contract Details Step follows the same architectural pattern as the existing
 
 ```typescript
 interface ContractDetailsStepProps {
-  control: Control<ContractDetailsStepFormData>;
-  errors: FieldErrors<ContractDetailsStepFormData>;
-  watch: UseFormWatch<ContractDetailsStepFormData>;
+  control: Control<AddClientCombinedFormData>;
+  errors: FieldErrors<AddClientCombinedFormData>;
+  watch: UseFormWatch<AddClientCombinedFormData>;
 }
 
 export const ContractDetailsStep: React.FC<ContractDetailsStepProps> = ({
@@ -47,67 +51,40 @@ export const ContractDetailsStep: React.FC<ContractDetailsStepProps> = ({
 };
 ```
 
-### FormDateField Component (New)
+### SuppressionRow Component (New)
 
-A new reusable date picker component following the existing FormTextField pattern:
+A component for managing individual suppression entries:
 
 ```typescript
-interface FormDateFieldProps<T extends FieldValues> {
-  name: Path<T>;
-  control: Control<T>;
-  label: string;
-  required?: boolean;
-  placeholder?: string;
-  error?: FieldError;
-  disabled?: boolean;
+interface SuppressionRowProps {
+  index: number;
+  control: Control<AddClientCombinedFormData>;
+  errors: FieldErrors<AddClientCombinedFormData>;
+  onRemove: () => void;
+  showDelete: boolean;
 }
 
-export const FormDateField = <T extends FieldValues>({
-  name,
+export const SuppressionRow: React.FC<SuppressionRowProps> = ({
+  index,
   control,
-  label,
-  required,
-  placeholder = 'MM-DD-YYYY',
-  error,
-  disabled,
-}: FormDateFieldProps<T>) => {
-  // Uses MUI DatePicker with calendar icon button
+  errors,
+  onRemove,
+  showDelete,
+}) => {
+  // Renders suppression type dropdown, start date, end date, and delete button
 };
 ```
 
-### FormRadioGroup Component (New)
+### NavigationFooter Component
 
-A reusable radio button group component:
-
-```typescript
-interface FormRadioGroupProps<T extends FieldValues> {
-  name: Path<T>;
-  control: Control<T>;
-  label: string;
-  options: { value: string; label: string }[];
-  row?: boolean;
-}
-
-export const FormRadioGroup = <T extends FieldValues>({
-  name,
-  control,
-  label,
-  options,
-  row = true,
-}: FormRadioGroupProps<T>) => {
-  // Radio group implementation
-};
-```
-
-### BillingAttributesSection Component
-
-A nested section within Contract Details for billing configuration:
+Footer with Next and Go Back buttons:
 
 ```typescript
-interface BillingAttributesSectionProps {
-  control: Control<ContractDetailsStepFormData>;
-  errors: FieldErrors<ContractDetailsStepFormData>;
-  paymentMethod: string;
+interface NavigationFooterProps {
+  onNext: () => void;
+  onBack: () => void;
+  nextLabel?: string;
+  backLabel?: string;
 }
 ```
 
@@ -116,6 +93,13 @@ interface BillingAttributesSectionProps {
 ### Contract Details Step Schema
 
 ```typescript
+// Suppression entry schema
+const suppressionEntrySchema = z.object({
+  suppressionType: z.string().optional(),
+  suppressionStartDate: z.string().optional(),
+  suppressionEndDate: z.string().optional(),
+});
+
 // Contract Details Step Schema
 export const contractDetailsStepSchema = z.object({
   // Contract Information
@@ -129,7 +113,7 @@ export const contractDetailsStepSchema = z.object({
   contractingLegalEntityClient: z.string().optional(),
   assignedTo: z.string().optional(),
   runOffEffectiveDate: z.string().optional(),
-  source: z.string().min(1, 'Required field'),
+  contractSource: z.string().min(1, 'Required field'),
 
   // Billing Attributes
   invoiceBreakout: z.string().min(1, 'Required field'),
@@ -140,8 +124,15 @@ export const contractDetailsStepSchema = z.object({
   invoicingClaimQuantityCounts: z.string().optional(),
   deliveryOption: z.string().min(1, 'Required field'),
   supportDocumentVersion: z.string().min(1, 'Required field'),
-  claimInvoicePaymentTerm: z.string().optional(),
+  invoiceStaticData: z.string().optional(),
+  
+  // Payment Terms
   feeInvoicePaymentTerm: z.string().optional(),
+  feeInvoicePaymentTermDayType: z.string().optional(),
+  claimInvoicePaymentTerm: z.string().optional(),
+  claimInvoicePaymentTermDayType: z.string().optional(),
+  
+  // Payment Method
   paymentMethod: z.string().optional(),
 
   // Autopay Information (conditional)
@@ -150,29 +141,10 @@ export const contractDetailsStepSchema = z.object({
   accountNumber: z.string().optional(),
   accountHolderName: z.string().optional(),
 
-  // Radio Options
-  suppressRejectedClaims: z.enum(['yes', 'no']).default('yes'),
-  suppressNetZeroClaims: z.enum(['yes', 'no']).default('yes'),
+  // Suppressions
+  addSuppressions: z.enum(['yes', 'no']).default('no'),
+  suppressions: z.array(suppressionEntrySchema).default([]),
 });
-
-// Conditional validation for autopay fields
-export const contractDetailsStepSchemaWithAutopay = contractDetailsStepSchema.refine(
-  (data) => {
-    if (data.paymentMethod === 'ach') {
-      return (
-        data.bankAccountType &&
-        data.routingNumber &&
-        data.accountNumber &&
-        data.accountHolderName
-      );
-    }
-    return true;
-  },
-  {
-    message: 'Autopay fields are required when payment method is ACH',
-    path: ['bankAccountType'],
-  }
-);
 
 export type ContractDetailsStepFormData = z.infer<typeof contractDetailsStepSchema>;
 ```
@@ -180,7 +152,7 @@ export type ContractDetailsStepFormData = z.infer<typeof contractDetailsStepSche
 ### Dropdown Options
 
 ```typescript
-// Source options (reused from Client Details)
+// Source options
 const SOURCE_OPTIONS = [
   { value: 'direct', label: 'Direct' },
   { value: 'referral', label: 'Referral' },
@@ -256,7 +228,139 @@ const CLAIM_QUANTITY_OPTIONS = [
   { value: 'claims', label: 'Claims' },
   { value: 'both', label: 'Both' },
 ];
+
+// Payment Term Days options
+const PAYMENT_TERM_DAYS_OPTIONS = [
+  { value: '15', label: '15' },
+  { value: '30', label: '30' },
+  { value: '45', label: '45' },
+  { value: '60', label: '60' },
+  { value: '90', label: '90' },
+];
+
+// Day Type options
+const DAY_TYPE_OPTIONS = [
+  { value: 'calendar', label: 'Calendar Days' },
+  { value: 'business', label: 'Business Days' },
+];
+
+// Suppression Type options
+const SUPPRESSION_TYPE_OPTIONS = [
+  { value: 'rejected_claims', label: 'Rejected Claims' },
+  { value: 'net_zero_claims', label: 'Net-Zero Claims' },
+  { value: 'zero_dollar_claims', label: 'Zero Dollar Claims' },
+];
 ```
+
+
+## Component Layout
+
+### Desktop Layout (3-column grid)
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ Contract Details                                              [▼]   │
+│ Complete the fields below.                                          │
+├─────────────────────────────────────────────────────────────────────┤
+│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐                  │
+│ │ Contract ID  │ │ Effective    │ │ Termination  │                  │
+│ │              │ │ Date*        │ │ Date         │                  │
+│ └──────────────┘ └──────────────┘ └──────────────┘                  │
+│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐                  │
+│ │ Contract     │ │ Client       │ │ Client DOA   │                  │
+│ │ Term         │ │ Membership   │ │ Signor       │                  │
+│ └──────────────┘ └──────────────┘ └──────────────┘                  │
+│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐                  │
+│ │ Legal Entity │ │ Legal Entity │ │ Assigned To  │                  │
+│ │ OptumRx      │ │ Client       │ │              │                  │
+│ └──────────────┘ └──────────────┘ └──────────────┘                  │
+│ ┌──────────────┐ ┌──────────────┐                                   │
+│ │ Run-Off Date │ │ Source*      │                                   │
+│ └──────────────┘ └──────────────┘                                   │
+├─────────────────────────────────────────────────────────────────────┤
+│ ┌─────────────────────────────────────────────────────────────────┐ │
+│ │ Billing Attributes                                        [▼]  │ │
+│ │ You may override the billing attributes...                     │ │
+│ │ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐              │ │
+│ │ │ Invoice      │ │ Claim Inv    │ │ Fee Invoice  │              │ │
+│ │ │ Breakout*    │ │ Frequency*   │ │ Frequency*   │              │ │
+│ │ └──────────────┘ └──────────────┘ └──────────────┘              │ │
+│ │ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐              │ │
+│ │ │ Aggregation* │ │ Invoice Type*│ │ Quantity     │              │ │
+│ │ └──────────────┘ └──────────────┘ └──────────────┘              │ │
+│ │ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐              │ │
+│ │ │ Delivery*    │ │ Doc Version* │ │ Static Data  │              │ │
+│ │ └──────────────┘ └──────────────┘ └──────────────┘              │ │
+│ │ ┌──────────────┐ ┌──────────────┐                               │ │
+│ │ │ Fee Payment  │ │ Day Type     │                               │ │
+│ │ │ Term         │ │              │                               │ │
+│ │ └──────────────┘ └──────────────┘                               │ │
+│ │ ┌──────────────┐ ┌──────────────┐                               │ │
+│ │ │ Claim Payment│ │ Day Type     │                               │ │
+│ │ │ Term         │ │              │                               │ │
+│ │ └──────────────┘ └──────────────┘                               │ │
+│ │ ┌──────────────┐                                                │ │
+│ │ │ Payment      │                                                │ │
+│ │ │ Method       │                                                │ │
+│ │ └──────────────┘                                                │ │
+│ │ ─────────────────────────────────────────────────────────────── │ │
+│ │ (ACH Section - conditional)                                     │ │
+│ │ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐              │ │
+│ │ │ Bank Account │ │ Routing      │ │ Account      │              │ │
+│ │ │ Type*        │ │ Number*      │ │ Number*      │              │ │
+│ │ └──────────────┘ └──────────────┘ └──────────────┘              │ │
+│ │ ┌──────────────┐                                                │ │
+│ │ │ Account      │                                                │ │
+│ │ │ Holder Name* │                                                │ │
+│ │ └──────────────┘                                                │ │
+│ │ ─────────────────────────────────────────────────────────────── │ │
+│ │ Add Suppressions  ○ Yes  ● No                                   │ │
+│ │ (Suppression rows - conditional when Yes)                       │ │
+│ │ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐              │ │
+│ │ │ Suppression  │ │ Start Date   │ │ End Date     │              │ │
+│ │ │ Type         │ │              │ │              │              │ │
+│ │ └──────────────┘ └──────────────┘ └──────────────┘              │ │
+│ │ ─────────────────────────────────────────────────────────────── │ │
+│ │ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐  [🗑]        │ │
+│ │ │ Suppression  │ │ Start Date   │ │ End Date     │              │ │
+│ │ │ Type         │ │              │ │              │              │ │
+│ │ └──────────────┘ └──────────────┘ └──────────────┘              │ │
+│ │ [+ Add another suppression]                                     │ │
+│ └─────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                                          [Next]  [Go Back]          │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Styling Specifications
+
+| Element | Property | Value |
+|---------|----------|-------|
+| Accordion | Border | 1px solid #CBCCCD |
+| Accordion | Border Radius | 12px |
+| Accordion | Padding | 30px 24px |
+| Section Title | Font | 20px, Bold, #000000 |
+| Section Subtitle | Font | 16px, Regular, #4B4D4F |
+| Field Label | Font | 16px, Bold, #323334 |
+| Field Input | Font | 16px, Regular, #323334 |
+| Grid Gap | Row/Column | 24px |
+| Date Picker Button | Background | #002677 |
+| Billing Section | Border | 1px solid #CBCCCD |
+| Billing Section | Border Radius | 12px |
+| Billing Section | Padding | 24px |
+| Add Suppression Button | Color | #0C55B8 |
+| Add Suppression Button | Font | 14px, Bold |
+| Delete Icon | Size | 24px |
+| Navigation Footer | Border Top | 1px solid #CBCCCD |
+| Navigation Footer | Padding | 4px 84px |
+| Next Button | Background | #002677 |
+| Next Button | Border Radius | 46px |
+| Next Button | Padding | 10px 24px |
+| Go Back Button | Background | #FFFFFF |
+| Go Back Button | Border | 1px solid #323334 |
+| Go Back Button | Border Radius | 46px |
+
 
 ## Correctness Properties
 
@@ -274,29 +378,56 @@ const CLAIM_QUANTITY_OPTIONS = [
 
 **Validates: Requirements 4.1, 4.2**
 
-### Property 3: Required Field Validation
+### Property 3: Suppressions Section Conditional Visibility
+
+*For any* Add Suppressions radio value, the suppression configuration fields SHALL be visible if and only if the value equals "Yes".
+
+**Validates: Requirements 5.2, 5.3**
+
+### Property 4: Suppression Array Management
+
+*For any* suppression array state:
+- Adding a suppression SHALL increase the array length by 1
+- Removing a suppression SHALL decrease the array length by 1
+- Delete button SHALL be visible for all rows except the first (index > 0)
+
+**Validates: Requirements 5.7, 5.8, 5.9**
+
+### Property 5: Required Field Validation
 
 *For any* required field in the Contract Details form, if the field value is empty or whitespace-only when validation is triggered, the form SHALL display "Required field" as the error message for that field.
 
 **Validates: Requirements 6.1, 6.2, 6.3, 6.4**
 
-### Property 4: Conditional Autopay Validation
+### Property 6: Conditional Autopay Validation
 
 *For any* form state where payment method is "ACH", all autopay fields (Bank Account Type, Routing Number, Account Number, Account Holder Name) SHALL be validated as required fields.
 
 **Validates: Requirements 6.5**
 
-### Property 5: Valid Form Enables Navigation
+### Property 7: Valid Form Enables Navigation
 
 *For any* form state where all required fields contain valid non-empty values, the form SHALL allow navigation to the next step (validation passes).
 
 **Validates: Requirements 6.6**
 
-### Property 6: Form Data Persistence Round Trip
+### Property 8: Form Data Persistence Round Trip
 
 *For any* form data entered in the Contract Details step, navigating away from Step 2 and returning SHALL restore the exact same form data values.
 
 **Validates: Requirements 8.2, 8.3**
+
+### Property 9: Navigation Validation Trigger
+
+*For any* form state when the "Next" button is clicked, the form SHALL trigger validation on all required fields before allowing navigation to Step 3.
+
+**Validates: Requirements 9.5**
+
+### Property 10: Back Navigation Data Preservation
+
+*For any* form data entered in the Contract Details step, clicking "Go Back" SHALL navigate to Step 1 while preserving all entered form data.
+
+**Validates: Requirements 9.6**
 
 ## Error Handling
 
@@ -332,14 +463,18 @@ Unit tests will verify specific examples and edge cases:
    - All form fields render with correct labels
    - Date picker shows calendar icon
    - Radio buttons render with correct options
+   - Suppression rows render correctly
 
 2. **Conditional Rendering Tests**
    - Autopay section hidden when payment method is not ACH
    - Autopay section visible when payment method is ACH
+   - Suppression fields hidden when Add Suppressions is "No"
+   - Suppression fields visible when Add Suppressions is "Yes"
 
 3. **Integration Tests**
    - Form integrates with parent Add Client form
    - Step navigation works correctly
+   - Navigation buttons trigger correct actions
 
 ### Property-Based Tests
 
@@ -349,22 +484,39 @@ Property-based tests will validate universal properties using a PBT library (e.g
    - Generate random valid dates
    - Verify display format matches MM-DD-YYYY
    - Minimum 100 iterations
+   - **Feature: contract-details-step, Property 1: Date Format Consistency**
 
 2. **Autopay Visibility Property Test**
    - Generate random payment method values
    - Verify autopay section visibility matches ACH condition
    - Minimum 100 iterations
+   - **Feature: contract-details-step, Property 2: Autopay Section Conditional Visibility**
 
-3. **Required Field Validation Property Test**
+3. **Suppressions Visibility Property Test**
+   - Generate random Add Suppressions values (yes/no)
+   - Verify suppression fields visibility matches condition
+   - Minimum 100 iterations
+   - **Feature: contract-details-step, Property 3: Suppressions Section Conditional Visibility**
+
+4. **Suppression Array Property Test**
+   - Generate random add/remove operations
+   - Verify array length changes correctly
+   - Verify delete button visibility based on index
+   - Minimum 100 iterations
+   - **Feature: contract-details-step, Property 4: Suppression Array Management**
+
+5. **Required Field Validation Property Test**
    - Generate random form states with empty required fields
    - Verify "Required field" error message appears
    - Minimum 100 iterations
+   - **Feature: contract-details-step, Property 5: Required Field Validation**
 
-4. **Form Data Persistence Property Test**
+6. **Form Data Persistence Property Test**
    - Generate random valid form data
    - Simulate navigation away and back
    - Verify data equality
    - Minimum 100 iterations
+   - **Feature: contract-details-step, Property 8: Form Data Persistence Round Trip**
 
 ### Test Configuration
 
@@ -374,61 +526,4 @@ const propertyTestConfig = {
   numRuns: 100,
   verbose: true,
 };
-
-// Example property test annotation
-// Feature: contract-details-step, Property 1: Date Format Consistency
 ```
-
-## Component Layout
-
-### Desktop Layout (3-column grid)
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│ Contract Details                                              [▼]   │
-│ Complete the fields below.                                          │
-├─────────────────────────────────────────────────────────────────────┤
-│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐                  │
-│ │ Contract ID  │ │ Effective    │ │ Termination  │                  │
-│ │              │ │ Date*        │ │ Date         │                  │
-│ └──────────────┘ └──────────────┘ └──────────────┘                  │
-│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐                  │
-│ │ Contract     │ │ Client       │ │ Client DOA   │                  │
-│ │ Term         │ │ Membership   │ │ Signor       │                  │
-│ └──────────────┘ └──────────────┘ └──────────────┘                  │
-│ ... more rows ...                                                   │
-├─────────────────────────────────────────────────────────────────────┤
-│ Billing Attributes                                            [▼]   │
-│ Complete the fields below.                                          │
-│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐                  │
-│ │ Invoice      │ │ Claim Inv    │ │ Fee Invoice  │                  │
-│ │ Breakout*    │ │ Frequency*   │ │ Frequency*   │                  │
-│ └──────────────┘ └──────────────┘ └──────────────┘                  │
-│ ... more rows ...                                                   │
-├─────────────────────────────────────────────────────────────────────┤
-│ Autopay Information (conditional)                                   │
-│ You have chosen ACH as your payment method...                       │
-│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐                  │
-│ │ Bank Account │ │ Routing      │ │ Account      │                  │
-│ │ Type*        │ │ Number*      │ │ Number*      │                  │
-│ └──────────────┘ └──────────────┘ └──────────────┘                  │
-├─────────────────────────────────────────────────────────────────────┤
-│ ○ Suppress Rejected Claims?  [Yes] [No]                             │
-│ ○ Suppress Net-zero claims?  [Yes] [No]                             │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### Styling Specifications
-
-| Element | Property | Value |
-|---------|----------|-------|
-| Accordion | Border | 1px solid #CBCCCD |
-| Accordion | Border Radius | 12px |
-| Accordion | Padding | 30px 24px |
-| Section Title | Font | 20px, Bold, #000000 |
-| Section Subtitle | Font | 16px, Regular, #4B4D4F |
-| Field Label | Font | 16px, Bold, #323334 |
-| Field Input | Font | 16px, Regular, #323334 |
-| Grid Gap | Row/Column | 24px |
-| Date Picker Button | Background | #002677 |
-
