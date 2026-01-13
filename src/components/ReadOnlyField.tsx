@@ -25,7 +25,7 @@ export const ReadOnlyField: React.FC<ReadOnlyFieldProps> = ({
   fullWidth = true,
 }) => {
   const displayValue = value && value.trim() !== '' ? value : '';
-  const displayPlaceholder = placeholder || `Enter ${label.toLowerCase()}`;
+  const displayPlaceholder = placeholder;
 
   return (
     <Box sx={{ width: fullWidth ? '100%' : 'auto' }}>

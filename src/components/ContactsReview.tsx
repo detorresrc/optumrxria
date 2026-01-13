@@ -50,21 +50,18 @@ export const ContactsReview: React.FC<ContactsReviewProps> = ({
                 <ReadOnlySelectField
                   label="Contact Type"
                   value={getLabel(contact.contactType, CONTACT_TYPE_LABELS)}
-                  placeholder="Select contact type"
                 />
               </Grid>
               <Grid size={{ xs: 12, md: 4 }}>
                 <ReadOnlyField
                   label="First Name"
                   value={contact.firstName}
-                  placeholder="Enter first name"
                 />
               </Grid>
               <Grid size={{ xs: 12, md: 4 }}>
                 <ReadOnlyField
                   label="Last Name"
                   value={contact.lastName}
-                  placeholder="Enter last name"
                 />
               </Grid>
             </Grid>
@@ -75,21 +72,18 @@ export const ContactsReview: React.FC<ContactsReviewProps> = ({
                 <ReadOnlyField
                   label="Email"
                   value={contact.email}
-                  placeholder="Enter email"
                 />
               </Grid>
               <Grid size={{ xs: 12, md: 4 }}>
                 <ReadOnlySelectField
                   label="Status"
                   value={getLabel(contact.status, STATUS_LABELS)}
-                  placeholder="Select status"
                 />
               </Grid>
               <Grid size={{ xs: 12, md: 4 }}>
                 <ReadOnlySelectField
                   label="Send email Notification"
                   value={getLabel(contact.sendEmailNotification, YES_NO_LABELS)}
-                  placeholder="Select option"
                 />
               </Grid>
             </Grid>

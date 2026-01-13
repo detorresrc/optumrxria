@@ -172,7 +172,6 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
           <ReadOnlyField
             label="Operational Unit Name"
             value={operationalUnit.name}
-            placeholder="Enter name"
             required
           />
         </Grid>
@@ -180,7 +179,6 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
           <ReadOnlyField
             label="Operational Unit ID"
             value={operationalUnit.id}
-            placeholder="Enter name"
             required
           />
         </Grid>
@@ -188,7 +186,6 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
           <ReadOnlyField
             label="LOB Numeric"
             value={operationalUnit.lobNumeric}
-            placeholder="Enter name"
             required
           />
         </Grid>
@@ -200,14 +197,12 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
           <ReadOnlySelectField
             label="Market Segment"
             value={getLabel(operationalUnit.marketSegment, MARKET_SEGMENT_LABELS)}
-            placeholder="Select market segment"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlySelectField
             label="Line of Business"
             value={getLabel(operationalUnit.lineOfBusiness, LINE_OF_BUSINESS_LABELS)}
-            placeholder="Select line of business"
             required
           />
         </Grid>
@@ -215,7 +210,6 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
           <ReadOnlySelectField
             label="M&R Plan Type"
             value={getLabel(operationalUnit.mrPlanType, MR_PLAN_TYPE_LABELS)}
-            placeholder="Select M&R plan type"
           />
         </Grid>
       </Grid>
@@ -226,21 +220,18 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
           <ReadOnlySelectField
             label="M&R Group/Individual"
             value={getLabel(operationalUnit.mrGroupIndividual, MR_GROUP_INDIVIDUAL_LABELS)}
-            placeholder="Select M&R grouping"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlySelectField
             label="M&R Classification"
             value={getLabel(operationalUnit.mrClassification, MR_CLASSIFICATION_LABELS)}
-            placeholder="Select M&R classification"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlySelectField
             label="Pass through/Traditional pricing"
             value={getLabel(operationalUnit.passThroughTraditional, PRICING_LABELS)}
-            placeholder="Select"
           />
         </Grid>
       </Grid>
@@ -317,7 +308,6 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
                   <ReadOnlySelectField
                     label="Address Type"
                     value={getLabel(address.addressType, ADDRESS_TYPE_LABELS)}
-                    placeholder="Select Address type"
                     required
                   />
                 </Grid>
@@ -325,7 +315,6 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
                   <ReadOnlyField
                     label="Address 1"
                     value={address.address1}
-                    placeholder="Enter Address 1"
                     required
                   />
                 </Grid>
@@ -333,7 +322,6 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
                   <ReadOnlyField
                     label="Address 2"
                     value={address.address2}
-                    placeholder="Enter Address 2"
                   />
                 </Grid>
               </Grid>
@@ -344,7 +332,6 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
                   <ReadOnlyField
                     label="City"
                     value={address.city}
-                    placeholder="Enter city"
                     required
                   />
                 </Grid>
@@ -352,7 +339,6 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
                   <ReadOnlyField
                     label="State"
                     value={address.state}
-                    placeholder="Enter state"
                     required
                   />
                 </Grid>
@@ -360,7 +346,6 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
                   <ReadOnlyField
                     label="Zip"
                     value={address.zip}
-                    placeholder="Enter zip"
                     required
                   />
                 </Grid>
@@ -430,21 +415,18 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
               <ReadOnlySelectField
                 label="Claim Invoice Frequency"
                 value={getLabel(operationalUnit.billingAttributesOverride?.claimInvoiceFrequency, INVOICE_FREQUENCY_LABELS)}
-                placeholder="Select invoice frequency"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <ReadOnlySelectField
                 label="Fee Invoice Frequency"
                 value={getLabel(operationalUnit.billingAttributesOverride?.feeInvoiceFrequency, INVOICE_FREQUENCY_LABELS)}
-                placeholder="Select invoice frequency"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <ReadOnlySelectField
                 label="Invoice Aggregation Level"
                 value={getLabel(operationalUnit.billingAttributesOverride?.invoiceAggregationLevel, INVOICE_AGGREGATION_LABELS)}
-                placeholder="Select Aggregation level"
               />
             </Grid>
           </Grid>
@@ -455,21 +437,18 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
               <ReadOnlySelectField
                 label="Invoice Type"
                 value={getLabel(operationalUnit.billingAttributesOverride?.invoiceType, INVOICE_TYPE_LABELS)}
-                placeholder="Select invoice type"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <ReadOnlySelectField
                 label="Invoicing Claim Quantity Counts"
                 value={getLabel(operationalUnit.billingAttributesOverride?.invoicingClaimQuantityCounts, INVOICING_CLAIM_QUANTITY_LABELS)}
-                placeholder="Select quantity count"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <ReadOnlySelectField
                 label="Delivery Option"
                 value={getLabel(operationalUnit.billingAttributesOverride?.deliveryOption, DELIVERY_LABELS)}
-                placeholder="Select delivery option"
               />
             </Grid>
           </Grid>
@@ -480,14 +459,12 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
               <ReadOnlySelectField
                 label="Support Document Version"
                 value={getLabel(operationalUnit.billingAttributesOverride?.supportDocumentVersion, SUPPORT_DOC_VERSION_LABELS)}
-                placeholder="Select document version"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <ReadOnlyField
                 label="Invoice Static Data"
                 value={operationalUnit.billingAttributesOverride?.invoiceStaticData}
-                placeholder="Enter invoice static data"
               />
             </Grid>
           </Grid>
@@ -498,14 +475,12 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
               <ReadOnlySelectField
                 label="Fee Invoice Payment Term"
                 value={getLabel(operationalUnit.billingAttributesOverride?.feeInvoicePaymentTerm, PAYMENT_TERM_LABELS)}
-                placeholder="Select No. of days"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <ReadOnlySelectField
                 label="Fee Invoice Payment Term Day Type"
                 value={getLabel(operationalUnit.billingAttributesOverride?.feeInvoicePaymentTermDayType, DAY_TYPE_LABELS)}
-                placeholder="Select day type"
               />
             </Grid>
           </Grid>
@@ -516,14 +491,12 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
               <ReadOnlySelectField
                 label="Claim Invoice Payment Term"
                 value={getLabel(operationalUnit.billingAttributesOverride?.claimInvoicePaymentTerm, PAYMENT_TERM_LABELS)}
-                placeholder="Select No. of days"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <ReadOnlySelectField
                 label="Claim Invoice Payment Term Day Type"
                 value={getLabel(operationalUnit.billingAttributesOverride?.claimInvoicePaymentTermDayType, DAY_TYPE_LABELS)}
-                placeholder="Select day type"
               />
             </Grid>
           </Grid>
@@ -535,7 +508,6 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
                 <ReadOnlySelectField
                   label="Payment Method"
                   value={getLabel(operationalUnit.billingAttributesOverride?.paymentMethod, PAYMENT_METHOD_LABELS)}
-                  placeholder="Select payment method"
                 />
               </Grid>
             </Grid>
@@ -550,21 +522,18 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
                   <ReadOnlySelectField
                     label="Bank Account Type"
                     value={getLabel(operationalUnit.billingAttributesOverride?.bankAccountType, BANK_ACCOUNT_TYPE_LABELS)}
-                    placeholder="Select bank account type"
                   />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
                   <ReadOnlyField
                     label="Routing Number"
                     value={operationalUnit.billingAttributesOverride?.routingNumber}
-                    placeholder="Enter routing number"
                   />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
                   <ReadOnlyField
                     label="Account Number"
                     value={operationalUnit.billingAttributesOverride?.accountNumber}
-                    placeholder="Enter account number"
                   />
                 </Grid>
               </Grid>
@@ -595,21 +564,18 @@ export const OperationalUnitReview: React.FC<OperationalUnitReviewProps> = ({
                   <ReadOnlySelectField
                     label="Suppression Type"
                     value={getLabel(suppression.suppressionType, SUPPRESSION_TYPE_LABELS)}
-                    placeholder="Select suppression type"
                   />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
                   <ReadOnlyField
                     label="Suppression Start Date"
                     value={suppression.startDate}
-                    placeholder="MM-DD-YYYY"
                   />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
                   <ReadOnlyField
                     label="Suppression End Date"
                     value={suppression.endDate}
-                    placeholder="MM-DD-YYYY"
                   />
                 </Grid>
               </Grid>

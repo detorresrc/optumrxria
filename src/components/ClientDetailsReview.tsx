@@ -52,7 +52,7 @@ export const ClientDetailsReview: React.FC<ClientDetailsReviewProps> = ({
           <ReadOnlyField
             label="Client Reference ID"
             value={formData.clientReferenceId}
-            placeholder="Enter client reference ID"
+            placeholder=""
             helpTooltip="Unique identifier for the client"
           />
         </Grid>
@@ -67,7 +67,7 @@ export const ClientDetailsReview: React.FC<ClientDetailsReviewProps> = ({
           <ReadOnlyField
             label="Client Name"
             value={formData.clientName}
-            placeholder="Enter client name"
+            placeholder=""
             required
           />
         </Grid>
@@ -79,14 +79,14 @@ export const ClientDetailsReview: React.FC<ClientDetailsReviewProps> = ({
           <ReadOnlySelectField
             label="Client Status"
             value={getStatusLabel(formData.clientStatus)}
-            placeholder="Select client status"
+            placeholder=""
           />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <ReadOnlySelectField
             label="Source"
             value={getSourceLabel(formData.source)}
-            placeholder="Select source"
+            placeholder=""
             required
           />
         </Grid>
@@ -101,7 +101,7 @@ export const ClientDetailsReview: React.FC<ClientDetailsReviewProps> = ({
               <ReadOnlySelectField
                 label="Address Type"
                 value={getAddressTypeLabel(address.addressType)}
-                placeholder="Select Address type"
+                placeholder=""
                 required
               />
             </Grid>
@@ -109,7 +109,7 @@ export const ClientDetailsReview: React.FC<ClientDetailsReviewProps> = ({
               <ReadOnlyField
                 label="Address 1"
                 value={address.address1}
-                placeholder="Enter Address 1"
+                placeholder=""
                 required
               />
             </Grid>
@@ -117,7 +117,7 @@ export const ClientDetailsReview: React.FC<ClientDetailsReviewProps> = ({
               <ReadOnlyField
                 label="Address 2"
                 value={address.address2}
-                placeholder="Enter Address 2"
+                placeholder=""
               />
             </Grid>
           </Grid>
@@ -128,7 +128,7 @@ export const ClientDetailsReview: React.FC<ClientDetailsReviewProps> = ({
               <ReadOnlyField
                 label="City"
                 value={address.city}
-                placeholder="Enter city"
+                placeholder=""
                 required
               />
             </Grid>
@@ -136,7 +136,7 @@ export const ClientDetailsReview: React.FC<ClientDetailsReviewProps> = ({
               <ReadOnlyField
                 label="State"
                 value={address.state}
-                placeholder="Enter state"
+                placeholder=""
                 required
               />
             </Grid>
@@ -144,7 +144,7 @@ export const ClientDetailsReview: React.FC<ClientDetailsReviewProps> = ({
               <ReadOnlyField
                 label="Zip"
                 value={address.zip}
-                placeholder="Enter zip"
+                placeholder=""
                 required
               />
             </Grid>

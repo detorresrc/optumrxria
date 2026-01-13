@@ -75,6 +75,25 @@ const CLAIM_QUANTITY_LABELS: Record<string, string> = {
   both: 'Both',
 };
 
+const PAYMENT_TERM_DAYS_LABELS: Record<string, string> = {
+  '15': '15',
+  '30': '30',
+  '45': '45',
+  '60': '60',
+  '90': '90',
+};
+
+const DAY_TYPE_LABELS: Record<string, string> = {
+  calendar: 'Calendar Days',
+  business: 'Business Days',
+};
+
+const SUPPRESSION_TYPE_LABELS: Record<string, string> = {
+  type1: 'Type 1',
+  type2: 'Type 2',
+  type3: 'Type 3',
+};
+
 const YES_NO_LABELS: Record<string, string> = {
   yes: 'Yes',
   no: 'No',
@@ -95,21 +114,18 @@ export const ContractDetailsReview: React.FC<ContractDetailsReviewProps> = ({
           <ReadOnlyField
             label="Client Contract ID"
             value={formData.clientContractId}
-            placeholder="Enter client contract ID"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Effective Date"
             value={formData.effectiveDate}
-            placeholder="MM/DD/YYYY"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Termination Date"
             value={formData.terminationDate}
-            placeholder="MM/DD/YYYY"
           />
         </Grid>
       </Grid>
@@ -120,21 +136,18 @@ export const ContractDetailsReview: React.FC<ContractDetailsReviewProps> = ({
           <ReadOnlyField
             label="Contract Term"
             value={formData.contractTerm}
-            placeholder="Enter contract term"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Client Membership"
             value={formData.clientMembership}
-            placeholder="Enter client membership"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Client DOA Signor"
             value={formData.clientDoaSignor}
-            placeholder="Enter client DOA signor"
           />
         </Grid>
       </Grid>
@@ -145,21 +158,18 @@ export const ContractDetailsReview: React.FC<ContractDetailsReviewProps> = ({
           <ReadOnlyField
             label="Contracting Legal Entity for OptumRx"
             value={formData.contractingLegalEntityOptumRx}
-            placeholder="Enter legal entity"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
             label="Contracting Legal Entity for Client"
             value={formData.contractingLegalEntityClient}
-            placeholder="Enter legal entity"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlySelectField
             label="Assigned to"
             value={getLabel(formData.assignedTo, ASSIGNED_TO_LABELS)}
-            placeholder="Select assignee"
           />
         </Grid>
       </Grid>
@@ -170,14 +180,12 @@ export const ContractDetailsReview: React.FC<ContractDetailsReviewProps> = ({
           <ReadOnlyField
             label="Run-Off Effective Date"
             value={formData.runOffEffectiveDate}
-            placeholder="MM/DD/YYYY"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlySelectField
             label="Source"
             value={getLabel(formData.contractSource, SOURCE_LABELS)}
-            placeholder="Select source"
           />
         </Grid>
       </Grid>
@@ -201,21 +209,18 @@ export const ContractDetailsReview: React.FC<ContractDetailsReviewProps> = ({
           <ReadOnlySelectField
             label="Invoice Breakout"
             value={getLabel(formData.invoiceBreakout, INVOICE_BREAKOUT_LABELS)}
-            placeholder="Select invoice breakout"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlySelectField
             label="Claim Invoice Frequency"
             value={getLabel(formData.claimInvoiceFrequency, INVOICE_FREQUENCY_LABELS)}
-            placeholder="Select frequency"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlySelectField
             label="Fee Invoice Frequency"
             value={getLabel(formData.feeInvoiceFrequency, INVOICE_FREQUENCY_LABELS)}
-            placeholder="Select frequency"
           />
         </Grid>
       </Grid>
@@ -226,21 +231,18 @@ export const ContractDetailsReview: React.FC<ContractDetailsReviewProps> = ({
           <ReadOnlySelectField
             label="Invoice Aggregation Level"
             value={getLabel(formData.invoiceAggregationLevel, INVOICE_AGGREGATION_LABELS)}
-            placeholder="Select aggregation level"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlySelectField
             label="Invoice Type"
             value={getLabel(formData.invoiceType, INVOICE_TYPE_LABELS)}
-            placeholder="Select invoice type"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlySelectField
             label="Invoicing Claim Quantity Counts"
             value={getLabel(formData.invoicingClaimQuantityCounts, CLAIM_QUANTITY_LABELS)}
-            placeholder="Select quantity counts"
           />
         </Grid>
       </Grid>
@@ -251,50 +253,60 @@ export const ContractDetailsReview: React.FC<ContractDetailsReviewProps> = ({
           <ReadOnlySelectField
             label="Delivery Option"
             value={getLabel(formData.deliveryOption, DELIVERY_LABELS)}
-            placeholder="Select delivery option"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlySelectField
             label="Support Document Version"
             value={getLabel(formData.supportDocumentVersion, SUPPORT_DOC_VERSION_LABELS)}
-            placeholder="Select version"
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlyField
-            label="Claim Invoice Payment Term"
-            value={formData.claimInvoicePaymentTerm}
-            placeholder="Enter payment term"
+            label="Invoice Static Data"
+            value={formData.invoiceStaticData}
           />
         </Grid>
       </Grid>
 
-      {/* Billing Attributes - Row 4 */}
+      {/* Billing Attributes - Row 4: Fee Invoice Payment Term, Fee Invoice Payment Term Day Type */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ReadOnlyField
+          <ReadOnlySelectField
             label="Fee Invoice Payment Term"
-            value={formData.feeInvoicePaymentTerm}
-            placeholder="Enter payment term"
+            value={getLabel(formData.feeInvoicePaymentTerm, PAYMENT_TERM_DAYS_LABELS)}
           />
         </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <ReadOnlySelectField
+            label="Fee Invoice Payment Term Day Type"
+            value={getLabel(formData.feeInvoicePaymentTermDayType, DAY_TYPE_LABELS)}
+          />
+        </Grid>
+      </Grid>
+
+      {/* Billing Attributes - Row 5: Claim Invoice Payment Term, Claim Invoice Payment Term Day Type */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <ReadOnlySelectField
+            label="Claim Invoice Payment Term"
+            value={getLabel(formData.claimInvoicePaymentTerm, PAYMENT_TERM_DAYS_LABELS)}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <ReadOnlySelectField
+            label="Claim Invoice Payment Term Day Type"
+            value={getLabel(formData.claimInvoicePaymentTermDayType, DAY_TYPE_LABELS)}
+          />
+        </Grid>
+      </Grid>
+
+      {/* Billing Attributes - Row 6: Payment Method */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 4 }}>
           <ReadOnlySelectField
             label="Payment Method"
             value={getLabel(formData.paymentMethod, PAYMENT_METHOD_LABELS)}
-            placeholder="Select payment method"
-          />
-        </Grid>
-      </Grid>
-
-      {/* Billing Attributes - Row 5 - Add Suppressions */}
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <ReadOnlySelectField
-            label="Add Suppressions"
-            value={getLabel(formData.addSuppressions, YES_NO_LABELS)}
-            placeholder="Select option"
           />
         </Grid>
       </Grid>
@@ -319,32 +331,74 @@ export const ContractDetailsReview: React.FC<ContractDetailsReviewProps> = ({
               <ReadOnlySelectField
                 label="Bank Account Type"
                 value={getLabel(formData.bankAccountType, BANK_ACCOUNT_TYPE_LABELS)}
-                placeholder="Select account type"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 3 }}>
               <ReadOnlyField
                 label="Routing Number"
                 value={formData.routingNumber}
-                placeholder="Enter routing number"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 3 }}>
               <ReadOnlyField
                 label="Account Number"
                 value={formData.accountNumber}
-                placeholder="Enter account number"
               />
             </Grid>
             <Grid size={{ xs: 12, md: 3 }}>
               <ReadOnlyField
                 label="Account Holder Name"
                 value={formData.accountHolderName}
-                placeholder="Enter account holder name"
               />
             </Grid>
           </Grid>
         </>
+      )}
+
+      {/* Add Suppressions Toggle */}
+      {(formData.addSuppressions=="yes") && (
+        <Typography
+          sx={{
+            fontSize: '18px',
+            fontWeight: 700,
+            color: '#000000',
+            mb: 2,
+            mt: 4
+          }}
+        >
+          Suppressions
+        </Typography>
+      )}
+
+      {/* Suppressions List - shown only when addSuppressions is "yes" */}
+      {formData.addSuppressions === 'yes' && formData.suppressions && formData.suppressions.length > 0 && (
+        <Box sx={{ mt: 2 }}>
+          {formData.suppressions.map((suppression, index) => (
+            <Box key={index} sx={{ mb: 3 }}>
+              {index > 0 && <Divider sx={{ mb: 3, borderColor: '#CBCCCD' }} />}
+              <Grid container spacing={3}>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <ReadOnlySelectField
+                    label="Suppression Type"
+                    value={getLabel(suppression.suppressionType, SUPPRESSION_TYPE_LABELS)}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <ReadOnlyField
+                    label="Suppression Start Date"
+                    value={suppression.suppressionStartDate}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <ReadOnlyField
+                    label="Suppression End Date"
+                    value={suppression.suppressionEndDate}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+          ))}
+        </Box>
       )}
     </Box>
   );

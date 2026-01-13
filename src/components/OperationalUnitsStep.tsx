@@ -885,7 +885,7 @@ export const OperationalUnitsStep: React.FC<OperationalUnitsStepProps> = ({
   });
 
   // Get contact options from form contacts or use mock data as fallback
-  const contactOptions = getContactOptionsFromFormContacts(contacts);
+  const contactOptions = getContactOptionsFromFormContacts(undefined);
 
   // Task 6.1: Implement accordion expand/collapse logic
   // Only one card expanded at a time - clicking collapsed card expands it and collapses others
@@ -1056,7 +1056,6 @@ export const OperationalUnitsStep: React.FC<OperationalUnitsStepProps> = ({
                           label="Operational Unit ID"
                           required
                           placeholder="Enter name"
-                          disabled
                           error={errors.operationalUnits?.[index]?.id}
                         />
                       </Box>
