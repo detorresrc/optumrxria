@@ -52,10 +52,11 @@ export const NavigationFooter: React.FC<NavigationFooterProps> = ({
         padding: '4px 84px', // Figma: 4px vertical, 84px horizontal padding
         backgroundColor: '#FFFFFF', // Figma: white background
         minHeight: '77px', // Figma: 77px height
-        marginTop: 3,
-        marginLeft: '-84px', // Extend to full width
-        marginRight: '-84px',
-        width: 'calc(100% + 168px)', // Account for negative margins
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
       }}
     >
       {/* Next button - Primary button (Figma: Dark Blue fill) */}
