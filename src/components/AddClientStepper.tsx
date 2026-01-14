@@ -235,13 +235,44 @@ export const AddClientStepper: React.FC<AddClientStepperProps> = ({
                 mt: '33px',
               }}
             >
-              <Box
-                sx={{
-                  width: '100%',
-                  height: '2px',
-                  backgroundColor: '#B0B0B0',
-                }}
-              />
+              {/* Completed: solid line, Current: 1/4 solid + 3/4 dotted, Incomplete: dotted */}
+              {step.status === 'completed' ? (
+                // Fully solid line for completed steps
+                <Box
+                  sx={{
+                    width: '100%',
+                    height: '2px',
+                    backgroundColor: '#323334',
+                  }}
+                />
+              ) : step.status === 'current' ? (
+                // 1/4 solid + 3/4 dotted for in-progress step
+                <Box sx={{ display: 'flex', width: '100%', alignItems: 'center' }}>
+                  <Box
+                    sx={{
+                      width: '25%',
+                      height: '2px',
+                      backgroundColor: '#323334',
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      width: '75%',
+                      height: 0,
+                      borderTop: '2px dashed #323334',
+                    }}
+                  />
+                </Box>
+              ) : (
+                // Fully dotted line for incomplete steps
+                <Box
+                  sx={{
+                    width: '100%',
+                    height: 0,
+                    borderTop: '2px dashed #B0B0B0',
+                  }}
+                />
+              )}
             </Box>
           )}
         </React.Fragment>
