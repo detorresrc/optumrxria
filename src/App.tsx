@@ -1,7 +1,7 @@
-import AddClientPage from './components/AddClientPage'
+import { ManageCAGsPage } from './components/ManageCAGsPage'
 
 function App() {
-  return <AddClientPage/>
+  return <ManageCAGsPage />
 }
 
 export default App
