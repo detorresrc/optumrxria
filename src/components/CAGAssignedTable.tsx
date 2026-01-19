@@ -48,7 +48,6 @@ export const CAGAssignedTable: React.FC = () => {
           borderBottom: '1px solid #E5E5E6'
         }}>
           <Typography sx={{ 
-            fontFamily: '"Enterprise Sans VF", sans-serif',
             fontWeight: 700,
             fontSize: '14px',
             lineHeight: 1.4,
@@ -98,22 +97,22 @@ export const CAGAssignedTable: React.FC = () => {
           bgcolor: '#FAFAFA',
           borderBottom: '1px solid #E5E5E6'
         }}>
-          <Typography sx={{ width: '180px', fontFamily: '"Enterprise Sans VF", sans-serif', fontWeight: 700, fontSize: '14px', lineHeight: 1.4, color: '#000000' }}>
+          <Typography sx={{ width: '180px', fontWeight: 700, fontSize: '14px', lineHeight: 1.4, color: '#000000' }}>
             Carrier Name & ID
           </Typography>
-          <Typography sx={{ width: '180px', fontFamily: '"Enterprise Sans VF", sans-serif', fontWeight: 700, fontSize: '14px', lineHeight: 1.4, color: '#000000' }}>
+          <Typography sx={{ width: '180px', fontWeight: 700, fontSize: '14px', lineHeight: 1.4, color: '#000000' }}>
             Account Name & ID
           </Typography>
-          <Typography sx={{ width: '180px', fontFamily: '"Enterprise Sans VF", sans-serif', fontWeight: 700, fontSize: '14px', lineHeight: 1.4, color: '#000000' }}>
+          <Typography sx={{ width: '180px', fontWeight: 700, fontSize: '14px', lineHeight: 1.4, color: '#000000' }}>
             Group Name & ID
           </Typography>
-          <Typography sx={{ width: '127px', fontFamily: '"Enterprise Sans VF", sans-serif', fontWeight: 700, fontSize: '14px', lineHeight: 1.4, color: '#000000' }}>
+          <Typography sx={{ width: '127px', fontWeight: 700, fontSize: '14px', lineHeight: 1.4, color: '#000000' }}>
             Assignment Status
           </Typography>
-          <Typography sx={{ width: '96px', fontFamily: '"Enterprise Sans VF", sans-serif', fontWeight: 700, fontSize: '14px', lineHeight: 1.4, color: '#000000' }}>
+          <Typography sx={{ width: '96px', fontWeight: 700, fontSize: '14px', lineHeight: 1.4, color: '#000000' }}>
             Start Date
           </Typography>
-          <Typography sx={{ width: '96px', fontFamily: '"Enterprise Sans VF", sans-serif', fontWeight: 700, fontSize: '14px', lineHeight: 1.4, color: '#000000' }}>
+          <Typography sx={{ width: '96px', fontWeight: 700, fontSize: '14px', lineHeight: 1.4, color: '#000000' }}>
             End Date
           </Typography>
         </Box>
@@ -132,13 +131,13 @@ export const CAGAssignedTable: React.FC = () => {
               opacity: row.status === 'Inactive' ? 0.5 : 1
             }}
           >
-            <Typography sx={{ width: '180px', fontFamily: '"Enterprise Sans VF", sans-serif', fontSize: '16px', lineHeight: 1.4, fontWeight: 400, color: '#4B4D4F' }}>
+            <Typography sx={{ width: '180px', fontSize: '16px', lineHeight: 1.4, fontWeight: 400, color: '#4B4D4F' }}>
               {row.carrierName}<br />{row.carrierId}
             </Typography>
-            <Typography sx={{ width: '180px', fontFamily: '"Enterprise Sans VF", sans-serif', fontSize: '16px', lineHeight: 1.4, fontWeight: 400, color: '#4B4D4F' }}>
+            <Typography sx={{ width: '180px', fontSize: '16px', lineHeight: 1.4, fontWeight: 400, color: '#4B4D4F' }}>
               {row.accountName}{row.accountId && <><br />{row.accountId}</>}
             </Typography>
-            <Typography sx={{ width: '180px', fontFamily: '"Enterprise Sans VF", sans-serif', fontSize: '16px', lineHeight: 1.4, fontWeight: 400, color: '#4B4D4F' }}>
+            <Typography sx={{ width: '180px', fontSize: '16px', lineHeight: 1.4, fontWeight: 400, color: '#4B4D4F' }}>
               {row.groupName}{row.groupId && <><br />{row.groupId}</>}
             </Typography>
             <Box sx={{ width: '127px' }}>
@@ -148,7 +147,6 @@ export const CAGAssignedTable: React.FC = () => {
                   bgcolor: row.status === 'Active' ? '#FFFFFF' : '#F3F3F3',
                   border: row.status === 'Active' ? '1px solid #FF612B' : '1px solid #323334',
                   color: '#323334',
-                  fontFamily: '"Enterprise Sans VF", sans-serif',
                   fontWeight: 700,
                   fontSize: '12px',
                   lineHeight: 1.3,
@@ -160,10 +158,10 @@ export const CAGAssignedTable: React.FC = () => {
                 }}
               />
             </Box>
-            <Typography sx={{ width: '96px', fontFamily: '"Enterprise Sans VF", sans-serif', fontSize: '16px', lineHeight: 1.4, fontWeight: 400, color: '#4B4D4F' }}>
+            <Typography sx={{ width: '96px', fontSize: '16px', lineHeight: 1.4, fontWeight: 400, color: '#4B4D4F' }}>
               {row.startDate}
             </Typography>
-            <Typography sx={{ width: '96px', fontFamily: '"Enterprise Sans VF", sans-serif', fontSize: '16px', lineHeight: 1.4, fontWeight: 400, color: '#4B4D4F' }}>
+            <Typography sx={{ width: '96px', fontSize: '16px', lineHeight: 1.4, fontWeight: 400, color: '#4B4D4F' }}>
               {row.endDate}
             </Typography>
           </Box>

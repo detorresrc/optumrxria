@@ -41,7 +41,6 @@ export const ManageCAGsPage: React.FC = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <ChevronLeft sx={{ fontSize: 19, color: '#0C55B8' }} />
             <Typography variant="h4" sx={{ 
-              fontFamily: '"Enterprise Sans VF", sans-serif',
               fontWeight: 700,
               fontSize: '29px',
               lineHeight: 1.2,
@@ -111,7 +110,6 @@ export const ManageCAGsPage: React.FC = () => {
                 <Typography sx={{ 
                   fontSize: '14px',
                   lineHeight: 1.4,
-                  fontFamily: '"Enterprise Sans VF", sans-serif',
                   fontWeight: 400,
                   color: '#6D6F70'
                 }}>
@@ -150,7 +148,6 @@ export const ManageCAGsPage: React.FC = () => {
         py: 2
       }}>
         <Typography sx={{ 
-          fontFamily: '"Optum Sans", sans-serif',
           fontSize: '12.64px',
           lineHeight: 1.27,
           fontWeight: 400,

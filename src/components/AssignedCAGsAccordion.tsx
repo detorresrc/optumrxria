@@ -23,7 +23,6 @@ export const AssignedCAGsAccordion: React.FC<AssignedCAGsAccordionProps> = ({ op
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Typography sx={{ 
-              fontFamily: '"Enterprise Sans VF", sans-serif',
               fontWeight: 700,
               fontSize: '20px',
               lineHeight: 1.2,
@@ -32,7 +31,6 @@ export const AssignedCAGsAccordion: React.FC<AssignedCAGsAccordionProps> = ({ op
               List of Assigned CAGs -
             </Typography>
             <Typography sx={{ 
-              fontFamily: '"Enterprise Sans VF", sans-serif',
               fontSize: '16px',
               lineHeight: 1.4,
               fontWeight: 400,
@@ -70,7 +68,6 @@ export const AssignedCAGsAccordion: React.FC<AssignedCAGsAccordionProps> = ({ op
             {/* Table Header */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography sx={{ 
-                fontFamily: '"Enterprise Sans VF", sans-serif',
                 fontWeight: 700,
                 fontSize: '14px',
                 lineHeight: 1.71,
@@ -81,7 +78,6 @@ export const AssignedCAGsAccordion: React.FC<AssignedCAGsAccordionProps> = ({ op
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                   <Typography sx={{ 
-                    fontFamily: '"Optum Sans", sans-serif',
                     fontWeight: 700,
                     fontSize: '16px',
                     lineHeight: 1.25,
@@ -101,7 +97,6 @@ export const AssignedCAGsAccordion: React.FC<AssignedCAGsAccordionProps> = ({ op
                       border: '1px solid #4B4D4F',
                       borderRadius: '4px',
                       fontSize: '16px',
-                      fontFamily: '"Optum Sans", sans-serif',
                       fontWeight: 400,
                       '& .MuiSelect-select': {
                         padding: '12px'

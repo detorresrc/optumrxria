@@ -53,7 +53,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Typography sx={{ 
-              fontFamily: '"Enterprise Sans VF", sans-serif',
               fontWeight: 700,
               fontSize: '20px',
               lineHeight: 1.2,
@@ -62,7 +61,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
               Assign CAGs -
             </Typography>
             <Typography sx={{ 
-              fontFamily: '"Enterprise Sans VF", sans-serif',
               fontSize: '16px',
               lineHeight: 1.4,
               fontWeight: 400,
@@ -82,7 +80,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
             {/* Assignment Level Selection */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Typography sx={{ 
-                fontFamily: '"Optum Sans", sans-serif',
                 fontWeight: 700,
                 fontSize: '16px',
                 lineHeight: 1.25,
@@ -138,7 +135,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
             <Box sx={{ display: 'flex', gap: 3.25 }}>
               <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
                 <Typography sx={{ 
-                  fontFamily: '"Optum Sans", sans-serif',
                   fontWeight: 700,
                   fontSize: '16px',
                   lineHeight: 1.25,
@@ -162,7 +158,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                       '& input': {
                         padding: '10px 12px',
                         fontSize: '16px',
-                        fontFamily: '"Optum Sans", sans-serif',
                         fontWeight: 400,
                         color: '#323334'
                       }
@@ -184,7 +179,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
 
               <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
                 <Typography sx={{ 
-                  fontFamily: '"Optum Sans", sans-serif',
                   fontWeight: 700,
                   fontSize: '16px',
                   lineHeight: 1.25,
@@ -208,7 +202,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                       '& input': {
                         padding: '10px 12px',
                         fontSize: '16px',
-                        fontFamily: '"Optum Sans", sans-serif',
                         fontWeight: 400,
                         color: '#323334'
                       }
@@ -232,7 +225,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
             {/* Filter Section */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Typography sx={{ 
-                fontFamily: '"Enterprise Sans VF", sans-serif',
                 fontSize: '16px',
                 lineHeight: 1.4,
                 fontWeight: 400,
@@ -243,7 +235,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
               <Box sx={{ display: 'flex', gap: 2.75 }}>
                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
                   <Typography sx={{ 
-                    fontFamily: '"Enterprise Sans VF", sans-serif',
                     fontWeight: 700,
                     fontSize: '16px',
                     lineHeight: 1.4,
@@ -264,7 +255,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                       '& input': {
                         padding: '10px 12px',
                         fontSize: '16px',
-                        fontFamily: '"Optum Sans", sans-serif',
                         fontWeight: 400,
                         color: '#323334'
                       }
@@ -273,7 +263,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                 </Box>
                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
                   <Typography sx={{ 
-                    fontFamily: '"Enterprise Sans VF", sans-serif',
                     fontWeight: 700,
                     fontSize: '16px',
                     lineHeight: 1.4,
@@ -294,7 +283,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                       '& input': {
                         padding: '10px 12px',
                         fontSize: '16px',
-                        fontFamily: '"Optum Sans", sans-serif',
                         fontWeight: 400,
                         color: '#323334'
                       }
@@ -321,7 +309,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                   Search
                 </Button>
                 <Typography sx={{ 
-                  fontFamily: '"Optum Sans", sans-serif',
                   fontWeight: 700,
                   fontSize: '16px',
                   lineHeight: 1.25,
@@ -337,7 +324,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Typography sx={{ 
-                  fontFamily: '"Enterprise Sans VF", sans-serif',
                   fontWeight: 700,
                   fontSize: '14px',
                   lineHeight: 1.71,
@@ -347,7 +333,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                   <Typography sx={{ 
-                    fontFamily: '"Optum Sans", sans-serif',
                     fontWeight: 700,
                     fontSize: '16px',
                     lineHeight: 1.25,
@@ -367,7 +352,7 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                     borderRadius: '4px',
                     px: 1.5
                   }}>
-                    <Typography sx={{ fontSize: '16px', fontFamily: '"Optum Sans", sans-serif', fontWeight: 400, color: '#323334' }}>
+                    <Typography sx={{ fontSize: '16px', fontWeight: 400, color: '#323334' }}>
                       Assign
                     </Typography>
                     <ExpandMore sx={{ fontSize: 24 }} />
@@ -391,7 +376,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                     onChange={(e) => handleSelectAll(e.target.checked)}
                   />
                   <Typography sx={{ 
-                    fontFamily: '"Enterprise Sans VF", sans-serif',
                     fontWeight: 700,
                     fontSize: '14px',
                     lineHeight: 1.4,
@@ -418,7 +402,6 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                       onChange={(e) => handleSelectCAG(cag.id, e.target.checked)}
                     />
                     <Typography sx={{ 
-                      fontFamily: '"Enterprise Sans VF", sans-serif',
                       fontSize: '16px',
                       lineHeight: 1.4,
                       fontWeight: 400,
