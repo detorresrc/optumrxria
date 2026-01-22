@@ -1,26 +1,39 @@
 import React, { useState } from 'react';
-import { Box, Typography, Button, MenuItem } from '@mui/material';
+import { Box, Typography, Button, MenuItem, Alert, CircularProgress } from '@mui/material';
 import { ChevronLeft } from '@mui/icons-material';
 import { Header } from './Header';
 import { SimpleSelectField } from './SimpleSelectField';
 import { AssignedCAGsAccordion } from './AssignedCAGsAccordion';
-import { BulkActionModal } from './BulkActionModal';
 import { AssignCAGsAccordion } from './AssignCAGsAccordion';
+import { useClientData } from '../hooks/useClientData';
+import { calculateContractStatus } from '../utils/contractStatus';
 
 export const ManageCAGsPage: React.FC = () => {
-  const [client, setClient] = useState('Client A');
-  const [contract, setContract] = useState('U1V2W3X4Y5 (05/01/2023 - 05/31/2023)');
-  const [operationalUnit, setOperationalUnit] = useState('OU-1');
-  const [showModal, setShowModal] = useState(true); // Set to true to show by default
+  const {
+    clients,
+    contracts,
+    operationalUnits,
+    selectedClient,
+    selectedContract,
+    selectedOperationalUnit,
+    isLoadingClients,
+    isLoadingContracts,
+    isLoadingOUs,
+    error,
+    setSelectedClient,
+    setSelectedContract,
+    setSelectedOperationalUnit,
+  } = useClientData();
 
-  const handleModalClose = () => {
-    setShowModal(false);
-  };
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const handleModalConfirm = () => {
-    // Handle the assign action here
-    console.log('Assigning items...');
-    setShowModal(false);
+  // Get the selected contract object for status display
+  const selectedContractObj = contracts.find(c => c.contractInternalId === selectedContract);
+  const contractStatus = selectedContractObj ? calculateContractStatus(selectedContractObj) : null;
+
+  // Callback to refresh assigned CAGs after successful assignment
+  const handleAssignmentSuccess = () => {
+    setRefreshTrigger(prev => prev + 1);
   };
 
   return (
@@ -71,62 +84,129 @@ export const ManageCAGsPage: React.FC = () => {
 
         {/* Filter Section */}
         <Box sx={{ width: '1272px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+          {/* Error Display */}
+          {error && (
+            <Alert severity="error" onClose={() => {}}>
+              {error}
+            </Alert>
+          )}
+
           <Box sx={{ display: 'flex', gap: 3.25 }}>
             <SimpleSelectField
               name="client"
               label="Client"
-              value={client}
-              onChange={(e) => setClient(e.target.value)}
+              value={selectedClient}
+              onChange={(e) => setSelectedClient(e.target.value)}
               required
+              disabled={isLoadingClients}
               sx={{ flex: 1 }}
             >
-              <MenuItem value="Client A">Client A</MenuItem>
+              {isLoadingClients ? (
+                <MenuItem disabled>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CircularProgress size={16} />
+                    <Typography>Loading clients...</Typography>
+                  </Box>
+                </MenuItem>
+              ) : clients.length === 0 ? (
+                <MenuItem disabled>No clients available</MenuItem>
+              ) : (
+                clients.map((client) => (
+                  <MenuItem key={client.clientId} value={client.clientId}>
+                    {client.clientName}
+                  </MenuItem>
+                ))
+              )}
             </SimpleSelectField>
 
             <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
               <SimpleSelectField
                 name="contract"
                 label="Contract"
-                value={contract}
-                onChange={(e) => setContract(e.target.value)}
+                value={selectedContract}
+                onChange={(e) => setSelectedContract(e.target.value)}
                 required
+                disabled={!selectedClient || isLoadingContracts}
                 sx={{ flex: 1 }}
               >
-                <MenuItem value="U1V2W3X4Y5 (05/01/2023 - 05/31/2023)">
-                  U1V2W3X4Y5 (05/01/2023 - 05/31/2023)
-                </MenuItem>
+                {isLoadingContracts ? (
+                  <MenuItem disabled>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <CircularProgress size={16} />
+                      <Typography>Loading contracts...</Typography>
+                    </Box>
+                  </MenuItem>
+                ) : !selectedClient ? (
+                  <MenuItem disabled>Select a client first</MenuItem>
+                ) : contracts.length === 0 ? (
+                  <MenuItem disabled>No contracts available</MenuItem>
+                ) : (
+                  contracts.map((contract) => (
+                    <MenuItem key={contract.contractInternalId} value={contract.contractInternalId}>
+                      {contract.contractId} ({contract.effectiveDate} - {contract.terminateDate || 'Ongoing'})
+                    </MenuItem>
+                  ))
+                )}
               </SimpleSelectField>
-              <Box sx={{ 
-                display: 'flex',
-                alignItems: 'center',
-                gap: 0.5
-              }}>
-                <Box
-                  component="img"
-                  src="/src/assets/check-circle-icon.svg"
-                  alt="Active status"
-                  sx={{ width: '16px', height: '16px' }}
-                />
-                <Typography sx={{ 
-                  fontSize: '14px',
-                  lineHeight: 1.4,
-                  fontWeight: 400,
-                  color: '#6D6F70'
+              {selectedContractObj && contractStatus && (
+                <Box sx={{ 
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5
                 }}>
-                  Contract status : <Box component="span" sx={{ color: '#007000', fontWeight: 400 }}>Active</Box>
-                </Typography>
-              </Box>
+                  <Box
+                    component="img"
+                    src="/src/assets/check-circle-icon.svg"
+                    alt="Contract status"
+                    sx={{ width: '16px', height: '16px' }}
+                  />
+                  <Typography sx={{ 
+                    fontSize: '14px',
+                    lineHeight: 1.4,
+                    fontWeight: 400,
+                    color: '#6D6F70'
+                  }}>
+                    Contract status : <Box 
+                      component="span" 
+                      sx={{ 
+                        color: contractStatus === 'Active' ? '#007000' : '#D32F2F', 
+                        fontWeight: 400 
+                      }}
+                    >
+                      {contractStatus}
+                    </Box>
+                  </Typography>
+                </Box>
+              )}
             </Box>
 
             <SimpleSelectField
               name="operationalUnit"
               label="Operational Unit"
-              value={operationalUnit}
-              onChange={(e) => setOperationalUnit(e.target.value)}
+              value={selectedOperationalUnit}
+              onChange={(e) => setSelectedOperationalUnit(e.target.value)}
               required
+              disabled={!selectedContract || isLoadingOUs}
               sx={{ flex: 1 }}
             >
-              <MenuItem value="OU-1">OU-1</MenuItem>
+              {isLoadingOUs ? (
+                <MenuItem disabled>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CircularProgress size={16} />
+                    <Typography>Loading operational units...</Typography>
+                  </Box>
+                </MenuItem>
+              ) : !selectedContract ? (
+                <MenuItem disabled>Select a contract first</MenuItem>
+              ) : operationalUnits.length === 0 ? (
+                <MenuItem disabled>No operational units available</MenuItem>
+              ) : (
+                operationalUnits.map((ou) => (
+                  <MenuItem key={ou.operationUnitInternalId} value={ou.operationUnitInternalId}>
+                    {ou.operationUnitId} - {ou.operationUnitName}
+                  </MenuItem>
+                ))
+              )}
             </SimpleSelectField>
           </Box>
 
@@ -134,8 +214,14 @@ export const ManageCAGsPage: React.FC = () => {
 
           {/* Accordions */}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <AssignedCAGsAccordion operationalUnit={operationalUnit} />
-            <AssignCAGsAccordion operationalUnit={operationalUnit} />
+            <AssignedCAGsAccordion 
+              operationalUnit={selectedOperationalUnit} 
+              key={refreshTrigger}
+            />
+            <AssignCAGsAccordion 
+              operationalUnit={selectedOperationalUnit}
+              onAssignmentSuccess={handleAssignmentSuccess}
+            />
           </Box>
         </Box>
       </Box>
@@ -156,17 +242,6 @@ export const ManageCAGsPage: React.FC = () => {
           © 2025 Optum, Inc. All rights reserved
         </Typography>
       </Box>
-
-      {/* Bulk Action Modal */}
-      <BulkActionModal
-        open={showModal}
-        onClose={handleModalClose}
-        onConfirm={handleModalConfirm}
-        title="Bulk actions: Assign"
-        message="You are about to assign 07 row items. Do it, doesn't give you back to undo it?"
-        confirmText="Yes, Assign"
-        cancelText="No, Cancel"
-      />
     </Box>
   );
 };

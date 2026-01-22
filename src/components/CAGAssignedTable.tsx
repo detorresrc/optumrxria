@@ -1,10 +1,18 @@
 import React from 'react';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, type GridRowSelectionModel } from '@mui/x-data-grid';
 import type { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { Chip, IconButton, Box, Typography } from '@mui/material';
 import EditIcon from '../assets/edit-icon.svg';
 import CancelIcon from '../assets/do-not-disturb.svg';
+import type { AssignedCAG } from '../types/cag.types';
 
+interface CAGAssignedTableProps {
+  assignedCAGs: AssignedCAG[];
+  selectedCAGs: string[];
+  onSelectionChange: (ids: string[]) => void;
+}
+
+// Transform AssignedCAG to table row format
 interface CAGRow {
   id: string;
   carrierName: string;
@@ -18,17 +26,30 @@ interface CAGRow {
   endDate: string;
 }
 
-const mockData: CAGRow[] = [
-  { id: '1', carrierName: 'Carrier Name A', carrierId: 'Lxxxxxxx', accountName: 'Account Name A', accountId: 'Lxxxxxxxxxx', groupName: '-', groupId: '', status: 'Active', startDate: '12/23/2024', endDate: '12/23/2025' },
-  { id: '2', carrierName: 'Carrier Name A', carrierId: 'Lxxxxxxx', accountName: '-', accountId: '', groupName: '-', groupId: '', status: 'Active', startDate: '12/23/2024', endDate: '12/23/2025' },
-  { id: '3', carrierName: 'Carrier Name A', carrierId: 'Lxxxxxxx', accountName: 'Account Name A', accountId: 'Lxxxxxxxxxx', groupName: '-', groupId: '', status: 'Active', startDate: '12/23/2024', endDate: '-' },
-  { id: '4', carrierName: 'Carrier Name A', carrierId: 'Lxxxxxxx', accountName: 'Account Name A', accountId: 'Lxxxxxxxxxx', groupName: 'Group Name A', groupId: 'Lxxxxxx - xxxx', status: 'Inactive', startDate: '12/23/2024', endDate: '-' },
-  { id: '5', carrierName: 'Carrier Name A', carrierId: 'Lxxxxxxx', accountName: '-', accountId: '', groupName: '-', groupId: '', status: 'Active', startDate: '12/23/2024', endDate: '12/23/2025' },
-  { id: '6', carrierName: 'Carrier Name A', carrierId: 'Lxxxxxxx', accountName: 'Account Name A', accountId: 'Lxxxxxxxxxx', groupName: 'Group Name A', groupId: 'Lxxxxxx - xxxx', status: 'Active', startDate: '12/23/2024', endDate: '12/23/2025' },
-  { id: '7', carrierName: 'Carrier Name A', carrierId: 'Lxxxxxxx', accountName: '-', accountId: '', groupName: '-', groupId: '', status: 'Inactive', startDate: '12/23/2024', endDate: '12/23/2025' },
-];
+export const CAGAssignedTable: React.FC<CAGAssignedTableProps> = ({ 
+  assignedCAGs, 
+  selectedCAGs, 
+  onSelectionChange 
+}) => {
+  // Transform API data to table row format
+  const rows: CAGRow[] = assignedCAGs.map((cag) => ({
+    id: cag.ouCagId,
+    carrierName: cag.carrierName || '-',
+    carrierId: cag.carrierId || '-',
+    accountName: cag.accountName || '-',
+    accountId: cag.accountId || '',
+    groupName: cag.groupName || '-',
+    groupId: cag.groupId || '',
+    status: cag.assigmentStatus === 'ACTIVE' ? 'Active' : 'Inactive',
+    startDate: cag.effectiveStartDate || '-',
+    endDate: cag.effectiveEndDate || '-',
+  }));
 
-export const CAGAssignedTable: React.FC = () => {
+  // Handle selection change - GridRowSelectionModel.ids is a Set
+  const handleSelectionChange = (selectionModel: GridRowSelectionModel) => {
+    onSelectionChange(Array.from(selectionModel.ids) as string[]);
+  };
+  
   const columns: GridColDef[] = [
     {
       field: 'actions',
@@ -139,10 +160,12 @@ export const CAGAssignedTable: React.FC = () => {
   return (
     <Box sx={{ width: '100%', borderRadius: '12px', overflow: 'hidden' }}>
       <DataGrid
-        rows={mockData}
+        rows={rows}
         columns={columns}
         checkboxSelection
         disableRowSelectionOnClick
+        rowSelectionModel={{ type: 'include', ids: new Set(selectedCAGs) }}
+        onRowSelectionModelChange={handleSelectionChange}
         rowHeight={76}
         getRowClassName={(params) => (params.row.status === 'Inactive' ? 'inactive-row' : '')}
         sx={{

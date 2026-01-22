@@ -9,6 +9,7 @@ interface SimpleSelectFieldProps {
   value: string;
   onChange: (event: SelectChangeEvent<string>) => void;
   required?: boolean;
+  disabled?: boolean;
   children: React.ReactNode;
   sx?: object;
 }
@@ -19,6 +20,7 @@ export const SimpleSelectField: React.FC<SimpleSelectFieldProps> = ({
   value,
   onChange,
   required = false,
+  disabled = false,
   children,
   sx = {}
 }) => {
@@ -38,6 +40,7 @@ export const SimpleSelectField: React.FC<SimpleSelectFieldProps> = ({
         name={name}
         value={value}
         onChange={onChange}
+        disabled={disabled}
         IconComponent={KeyboardArrowDownIcon}
         sx={{
           bgcolor: '#FFFFFF',

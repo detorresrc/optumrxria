@@ -1,39 +1,153 @@
 import React, { useState } from 'react';
-import { Box, Typography, IconButton, RadioGroup, FormControlLabel, Radio, TextField, Button, Checkbox } from '@mui/material';
+import { Box, Typography, IconButton, RadioGroup, FormControlLabel, Radio, TextField, Button, Checkbox, CircularProgress, Alert, Snackbar } from '@mui/material';
 import { ExpandMore, ExpandLess, Search, CalendarToday } from '@mui/icons-material';
 import { ClientPagination } from './ClientPagination';
+import { BulkActionModal } from './BulkActionModal';
+import { useCAGSearch } from '../hooks/useCAGSearch';
 
 interface AssignCAGsAccordionProps {
   operationalUnit: string;
+  onAssignmentSuccess?: () => void;
 }
 
-const mockUnassignedCAGs = [
-  { id: '1', carrierName: 'Carrier Name A', carrierId: 'Lxxxxxxx' },
-  { id: '2', carrierName: 'Carrier Name A', carrierId: 'Lxxxxxxx' },
-  { id: '3', carrierName: 'Carrier Name A', carrierId: 'Lxxxxxxx' },
-  { id: '4', carrierName: 'Carrier Name A', carrierId: 'Lxxxxxxx' },
-  { id: '5', carrierName: 'Carrier Name A', carrierId: 'Lxxxxxxx' },
-  { id: '6', carrierName: 'Carrier Name A', carrierId: 'Lxxxxxxx' },
-  { id: '7', carrierName: 'Carrier Name A', carrierId: 'Lxxxxxxx' },
-];
-
-export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operationalUnit }) => {
+export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ 
+  operationalUnit,
+  onAssignmentSuccess 
+}) => {
   const [expanded, setExpanded] = useState(false);
-  const [assignmentLevel, setAssignmentLevel] = useState('carrier');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [carrierName, setCarrierName] = useState('');
-  const [carrierId, setCarrierId] = useState('');
-  const [selectedCAGs, setSelectedCAGs] = useState<string[]>([]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [dateErrors, setDateErrors] = useState<{ startDate?: string; endDate?: string }>({});
 
+  // Use the useCAGSearch hook
+  const {
+    searchResults,
+    isSearching,
+    error,
+    selectedCAGs,
+    searchParams,
+    setSearchParams,
+    performSearch,
+    clearSearch,
+    setSelectedCAGs,
+    assignSelectedCAGs,
+  } = useCAGSearch();
+
+  // Date validation function
+  const validateDate = (dateStr: string): boolean => {
+    if (!dateStr) return true; // Empty is valid (optional field for end date)
+    
+    // Check MM/DD/YYYY format
+    const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+    if (!dateRegex.test(dateStr)) {
+      return false;
+    }
+    
+    // Validate it's a real date
+    const [month, day, year] = dateStr.split('/').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.getMonth() === month - 1 && date.getDate() === day;
+  };
+
+  // Handle assignment level change
+  const handleAssignmentLevelChange = (level: string) => {
+    setSearchParams({ ...searchParams, assignmentLevel: level as 'carrier' | 'account' | 'group' });
+  };
+
+  // Handle search field changes
+  const handleSearchFieldChange = (field: string, value: string) => {
+    setSearchParams({ ...searchParams, [field]: value });
+  };
+
+  // Handle date field changes with validation
+  const handleDateChange = (field: 'startDate' | 'endDate', value: string) => {
+    handleSearchFieldChange(field, value);
+    
+    // Validate on blur or when complete
+    if (value && value.length === 10) {
+      if (!validateDate(value)) {
+        setDateErrors(prev => ({ ...prev, [field]: 'Invalid date format. Use MM/DD/YYYY' }));
+      } else {
+        setDateErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors[field];
+          return newErrors;
+        });
+      }
+    }
+  };
+
+  // Handle search button click
+  const handleSearch = async () => {
+    // Validate dates before searching
+    const startDateValid = !searchParams.startDate || validateDate(searchParams.startDate);
+    const endDateValid = !searchParams.endDate || validateDate(searchParams.endDate);
+    
+    if (!startDateValid || !endDateValid) {
+      setDateErrors({
+        startDate: !startDateValid ? 'Invalid date format. Use MM/DD/YYYY' : undefined,
+        endDate: !endDateValid ? 'Invalid date format. Use MM/DD/YYYY' : undefined,
+      });
+      return;
+    }
+    
+    await performSearch();
+  };
+
+  // Handle clear button click
+  const handleClear = () => {
+    clearSearch();
+    setDateErrors({});
+  };
+
+  // Handle assign button click
+  const handleAssignClick = () => {
+    if (selectedCAGs.length === 0) return;
+    setShowConfirmModal(true);
+  };
+
+  // Handle assignment confirmation
+  const handleConfirmAssignment = async () => {
+    if (!operationalUnit || !searchParams.assignmentLevel) {
+      return;
+    }
+
+    // Map assignment level to assignment type
+    const assignmentTypeMap: Record<string, 'Carrier' | 'Account' | 'Group'> = {
+      'carrier': 'Carrier',
+      'account': 'Account',
+      'group': 'Group',
+      'carrier-account': 'Account',
+      'carrier-account-group': 'Group',
+    };
+
+    const assignmentType = assignmentTypeMap[searchParams.assignmentLevel];
+    
+    const success = await assignSelectedCAGs(operationalUnit, assignmentType);
+    
+    if (success) {
+      setShowConfirmModal(false);
+      setShowSuccessMessage(true);
+      
+      // Trigger parent refresh if callback provided
+      if (onAssignmentSuccess) {
+        onAssignmentSuccess();
+      }
+    } else {
+      setShowConfirmModal(false);
+    }
+  };
+
+  // Handle select all
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedCAGs(mockUnassignedCAGs.map(cag => cag.id));
+      setSelectedCAGs(searchResults.map(cag => cag.cagId));
     } else {
       setSelectedCAGs([]);
     }
   };
 
+  // Handle individual CAG selection
   const handleSelectCAG = (id: string, checked: boolean) => {
     if (checked) {
       setSelectedCAGs([...selectedCAGs, id]);
@@ -77,6 +191,13 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
         {/* Collapsible Content */}
         {expanded && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {/* Error Display */}
+            {error && (
+              <Alert severity="error" onClose={() => {}}>
+                {error}
+              </Alert>
+            )}
+
             {/* Assignment Level Selection */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Typography sx={{ 
@@ -88,8 +209,8 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                 Select Assignment Level*
               </Typography>
               <RadioGroup
-                value={assignmentLevel}
-                onChange={(e) => setAssignmentLevel(e.target.value)}
+                value={searchParams.assignmentLevel || 'carrier'}
+                onChange={(e) => handleAssignmentLevelChange(e.target.value)}
                 sx={{ display: 'flex', flexDirection: 'row', gap: 3.25 }}
               >
                 <FormControlLabel 
@@ -105,7 +226,7 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                   }}
                 />
                 <FormControlLabel 
-                  value="carrier-account" 
+                  value="account" 
                   control={<Radio />} 
                   label="Carrier + Account"
                   sx={{ 
@@ -117,7 +238,7 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                   }}
                 />
                 <FormControlLabel 
-                  value="carrier-account-group" 
+                  value="group" 
                   control={<Radio />} 
                   label="Carrier + Account + group"
                   sx={{ 
@@ -145,14 +266,16 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                 <Box sx={{ display: 'flex', borderRadius: '4px', overflow: 'hidden' }}>
                   <TextField
                     placeholder="MM/DD/YYYY"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
+                    value={searchParams.startDate || ''}
+                    onChange={(e) => handleDateChange('startDate', e.target.value)}
+                    error={!!dateErrors.startDate}
+                    helperText={dateErrors.startDate}
                     sx={{
                       flex: 1,
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '4px 0 0 4px',
                         '& fieldset': {
-                          borderColor: '#4B4D4F'
+                          borderColor: dateErrors.startDate ? '#D32F2F' : '#4B4D4F'
                         }
                       },
                       '& input': {
@@ -189,14 +312,16 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                 <Box sx={{ display: 'flex', borderRadius: '4px', overflow: 'hidden' }}>
                   <TextField
                     placeholder="MM/DD/YYYY"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
+                    value={searchParams.endDate || ''}
+                    onChange={(e) => handleDateChange('endDate', e.target.value)}
+                    error={!!dateErrors.endDate}
+                    helperText={dateErrors.endDate}
                     sx={{
                       flex: 1,
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '4px 0 0 4px',
                         '& fieldset': {
-                          borderColor: '#4B4D4F'
+                          borderColor: dateErrors.endDate ? '#D32F2F' : '#4B4D4F'
                         }
                       },
                       '& input': {
@@ -244,8 +369,8 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                   </Typography>
                   <TextField
                     placeholder="Enter carrier name"
-                    value={carrierName}
-                    onChange={(e) => setCarrierName(e.target.value)}
+                    value={searchParams.carrierName || ''}
+                    onChange={(e) => handleSearchFieldChange('carrierName', e.target.value)}
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         '& fieldset': {
@@ -272,8 +397,8 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                   </Typography>
                   <TextField
                     placeholder="Enter carrier ID"
-                    value={carrierId}
-                    onChange={(e) => setCarrierId(e.target.value)}
+                    value={searchParams.carrierId || ''}
+                    onChange={(e) => handleSearchFieldChange('carrierId', e.target.value)}
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         '& fieldset': {
@@ -294,6 +419,8 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                 <Button
                   variant="contained"
                   startIcon={<Search />}
+                  onClick={handleSearch}
+                  disabled={isSearching || Object.keys(dateErrors).length > 0}
                   sx={{
                     textTransform: 'none',
                     borderRadius: '46px',
@@ -303,126 +430,184 @@ export const AssignCAGsAccordion: React.FC<AssignCAGsAccordionProps> = ({ operat
                     fontSize: '16px',
                     '&:hover': {
                       bgcolor: '#001a5c'
+                    },
+                    '&:disabled': {
+                      bgcolor: '#CBCCCD',
+                      color: '#FFFFFF'
                     }
                   }}
                 >
-                  Search
+                  {isSearching ? 'Searching...' : 'Search'}
                 </Button>
-                <Typography sx={{ 
-                  fontWeight: 700,
-                  fontSize: '16px',
-                  lineHeight: 1.25,
-                  color: '#0C55B8',
-                  cursor: 'pointer'
-                }}>
+                <Typography 
+                  onClick={handleClear}
+                  sx={{ 
+                    fontWeight: 700,
+                    fontSize: '16px',
+                    lineHeight: 1.25,
+                    color: '#0C55B8',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      textDecoration: 'underline'
+                    }
+                  }}
+                >
                   Clear
                 </Typography>
               </Box>
             </Box>
 
-            {/* Unassigned CAGs Table */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography sx={{ 
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  lineHeight: 1.71,
-                  color: '#000000'
-                }}>
-                  Number of unassigned CAGs: 40
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Typography sx={{ 
-                    fontWeight: 700,
-                    fontSize: '16px',
-                    lineHeight: 1.25,
-                    color: '#0C55B8',
-                    cursor: 'pointer'
-                  }}>
-                    Apply
-                  </Typography>
-                  <Box sx={{
-                    width: '146px',
-                    height: '40px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    bgcolor: '#FFFFFF',
-                    border: '1px solid #4B4D4F',
-                    borderRadius: '4px',
-                    px: 1.5
-                  }}>
-                    <Typography sx={{ fontSize: '16px', fontWeight: 400, color: '#323334' }}>
-                      Assign
-                    </Typography>
-                    <ExpandMore sx={{ fontSize: 24 }} />
-                  </Box>
-                </Box>
+            {/* Loading State */}
+            {isSearching && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress />
               </Box>
+            )}
 
-              {/* Table */}
-              <Box sx={{ display: 'flex', flexDirection: 'column', borderRadius: '12px', overflow: 'hidden' }}>
-                {/* Header */}
-                <Box sx={{ 
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 2,
-                  p: 2,
-                  bgcolor: '#FAFAFA',
-                  borderBottom: '1px solid #E5E5E6'
-                }}>
-                  <Checkbox 
-                    checked={selectedCAGs.length === mockUnassignedCAGs.length}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                  />
+            {/* Search Results or Empty State */}
+            {!isSearching && searchResults.length === 0 && !error && Object.keys(searchParams).length > 0 && (
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                py: 4,
+                color: '#6D6F70'
+              }}>
+                <Typography>No unassigned CAGs found matching your search criteria</Typography>
+              </Box>
+            )}
+
+            {/* Unassigned CAGs Table */}
+            {!isSearching && searchResults.length > 0 && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography sx={{ 
                     fontWeight: 700,
                     fontSize: '14px',
-                    lineHeight: 1.4,
+                    lineHeight: 1.71,
                     color: '#000000'
                   }}>
-                    Carrier Name & ID
+                    Number of unassigned CAGs: {searchResults.length}
                   </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Button
+                      variant="contained"
+                      onClick={handleAssignClick}
+                      disabled={selectedCAGs.length === 0}
+                      sx={{
+                        textTransform: 'none',
+                        borderRadius: '46px',
+                        padding: '8px 24px',
+                        bgcolor: '#002677',
+                        fontWeight: 700,
+                        fontSize: '16px',
+                        '&:hover': {
+                          bgcolor: '#001a5c'
+                        },
+                        '&:disabled': {
+                          bgcolor: '#CBCCCD',
+                          color: '#FFFFFF'
+                        }
+                      }}
+                    >
+                      Assign ({selectedCAGs.length})
+                    </Button>
+                  </Box>
                 </Box>
 
-                {/* Rows */}
-                {mockUnassignedCAGs.map((cag, index) => (
-                  <Box 
-                    key={cag.id}
-                    sx={{ 
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 2,
-                      p: 2,
-                      bgcolor: index % 2 === 0 ? '#FFFFFF' : '#FAFAFA'
-                    }}
-                  >
+                {/* Table */}
+                <Box sx={{ display: 'flex', flexDirection: 'column', borderRadius: '12px', overflow: 'hidden' }}>
+                  {/* Header */}
+                  <Box sx={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    p: 2,
+                    bgcolor: '#FAFAFA',
+                    borderBottom: '1px solid #E5E5E6'
+                  }}>
                     <Checkbox 
-                      checked={selectedCAGs.includes(cag.id)}
-                      onChange={(e) => handleSelectCAG(cag.id, e.target.checked)}
+                      checked={selectedCAGs.length === searchResults.length && searchResults.length > 0}
+                      onChange={(e) => handleSelectAll(e.target.checked)}
                     />
                     <Typography sx={{ 
-                      fontSize: '16px',
+                      fontWeight: 700,
+                      fontSize: '14px',
                       lineHeight: 1.4,
-                      fontWeight: 400,
-                      color: '#4B4D4F'
+                      color: '#000000'
                     }}>
-                      {cag.carrierName}<br />{cag.carrierId}
+                      Carrier Name & ID
                     </Typography>
                   </Box>
-                ))}
-              </Box>
 
-              {/* Pagination */}
-              <ClientPagination 
-                currentPage={1}
-                totalPages={127}
-                onPageChange={() => {}}
-              />
-            </Box>
+                  {/* Rows */}
+                  {searchResults.map((cag, index) => (
+                    <Box 
+                      key={cag.cagId}
+                      sx={{ 
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                        p: 2,
+                        bgcolor: index % 2 === 0 ? '#FFFFFF' : '#FAFAFA'
+                      }}
+                    >
+                      <Checkbox 
+                        checked={selectedCAGs.includes(cag.cagId)}
+                        onChange={(e) => handleSelectCAG(cag.cagId, e.target.checked)}
+                      />
+                      <Typography sx={{ 
+                        fontSize: '16px',
+                        lineHeight: 1.4,
+                        fontWeight: 400,
+                        color: '#4B4D4F'
+                      }}>
+                        {cag.carrierName}<br />{cag.carrierId}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+
+                {/* Pagination - Placeholder for future implementation */}
+                {searchResults.length > 10 && (
+                  <ClientPagination 
+                    currentPage={1}
+                    totalPages={Math.ceil(searchResults.length / 10)}
+                    onPageChange={() => {}}
+                  />
+                )}
+              </Box>
+            )}
           </Box>
         )}
       </Box>
+
+      {/* Confirmation Modal */}
+      <BulkActionModal
+        open={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleConfirmAssignment}
+        title="Confirm CAG Assignment"
+        message={`You are about to assign ${selectedCAGs.length} CAG${selectedCAGs.length > 1 ? 's' : ''} to this operational unit. Do you want to continue?`}
+        confirmText="Yes, Assign"
+        cancelText="No, Cancel"
+      />
+
+      {/* Success Message */}
+      <Snackbar
+        open={showSuccessMessage}
+        autoHideDuration={6000}
+        onClose={() => setShowSuccessMessage(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => setShowSuccessMessage(false)} 
+          severity="success"
+          sx={{ width: '100%' }}
+        >
+          Successfully assigned {selectedCAGs.length} CAG{selectedCAGs.length > 1 ? 's' : ''} to the operational unit
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
